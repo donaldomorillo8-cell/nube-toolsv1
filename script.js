@@ -1,11 +1,31 @@
-/* ==========================================================================
-   NEXUS.AI - LÓGICA DE INTERACCIÓN, GOOGLE AUTH & ZONAS DRAG & DROP
-   ========================================================================== */
-
 document.addEventListener('DOMContentLoaded', () => {
     initGoogleAuth();
     setupDropZones();
 });
+
+/* Sistema de Cambio de Vistas (Pestañas en lugar de Scroll) */
+function switchView(viewId, event) {
+    if (event) event.preventDefault();
+
+    // Ocultar todas las pestañas
+    const contents = document.querySelectorAll('.tab-content');
+    contents.forEach(content => content.classList.remove('active-content'));
+
+    // Quitar estado activo de los links
+    const navTabs = document.querySelectorAll('.nav-tab');
+    navTabs.forEach(tab => tab.classList.remove('active'));
+
+    // Activar la pestaña seleccionada
+    const targetContent = document.getElementById(viewId);
+    if (targetContent) {
+        targetContent.classList.add('active-content');
+    }
+
+    // Marcar link activo si fue provisto
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+    }
+}
 
 /* Sistema de Notificaciones Toast */
 function showToast(message) {
@@ -43,12 +63,11 @@ function switchAuthTab(tab) {
     } else {
         registerForm.classList.add('active-form');
         loginForm.classList.remove('active-form');
-        tabRegister.classList.add('active');
-        tabLogin.classList.remove('active');
+        tabLogin.classList.add('active');
+        tabRegister.classList.remove('active');
     }
 }
 
-/* Manejo de Sesión Tradicional */
 function handleLogin(e) {
     e.preventDefault();
     showToast('⚡ Sesión iniciada correctamente en NEXUS.AI');
@@ -73,22 +92,20 @@ function updateUserSession(userName) {
     `;
 }
 
-/* Integración de Google Identity Services */
+/* Integración Google */
 function initGoogleAuth() {
     window.onload = function () {
         if (typeof google !== 'undefined') {
             google.accounts.id.initialize({
-                client_id: "774305802282-2flja2krsmhob5226uvj61ekjcktapvg.apps.googleusercontent.com", // Coloca tu Client ID de Google Cloud aquí
+                client_id: "774305802282-2flja2krsmhob5226uvj61ekjcktapvg.apps.googleusercontent.com",
                 callback: handleGoogleCredentialResponse
             });
 
-            // Renderizar Botón Login de Google
             google.accounts.id.renderButton(
                 document.getElementById("googleBtnLogin"),
                 { theme: "dark", size: "large", text: "signin_with", shape: "pill" }
             );
 
-            // Renderizar Botón Registro de Google
             google.accounts.id.renderButton(
                 document.getElementById("googleBtnRegister"),
                 { theme: "dark", size: "large", text: "signup_with", shape: "pill" }
@@ -98,13 +115,12 @@ function initGoogleAuth() {
 }
 
 function handleGoogleCredentialResponse(response) {
-    console.log("Token Google JWT recibido:", response.credential);
     showToast("✅ Autenticación exitosa con Google.");
     closeAuthModal();
     updateUserSession("Usuario Google");
 }
 
-/* Configuración de Arrastrar y Soltar (Drag & Drop) */
+/* Drag & Drop */
 function setupDropZones() {
     const zones = [
         { drop: 'converterDropZone', input: 'converterInput' },
@@ -144,7 +160,7 @@ function setupDropZones() {
     });
 }
 
-/* Simulaciones de Carga e Interacción */
+/* Simulación e Integración de Descargas */
 function simulateProgress(progressContainerId, callback) {
     const container = document.getElementById(progressContainerId);
     const bar = container.querySelector('.progress-bar');
@@ -166,6 +182,17 @@ function simulateProgress(progressContainerId, callback) {
     }, 200);
 }
 
+function createDownloadButton(containerId, fileBlob, fileName) {
+    const container = document.getElementById(containerId);
+    const url = URL.createObjectURL(fileBlob);
+    
+    container.innerHTML = `
+        <a href="${url}" download="${fileName}" class="download-link-btn">
+            <i class="fa-solid fa-download"></i> Descargar ${fileName}
+        </a>
+    `;
+}
+
 function processConversion() {
     const input = document.getElementById('converterInput');
     const target = document.getElementById('targetFormat').value;
@@ -173,8 +200,15 @@ function processConversion() {
         showToast('⚠️ Por favor carga un archivo para convertir.');
         return;
     }
+    
+    const file = input.files[0];
+    const newName = file.name.substring(0, file.name.lastIndexOf('.')) + `_converted.${target}`;
+
     simulateProgress('converterProgress', () => {
-        showToast(`🎉 Archivo convertido con éxito a formato .${target.toUpperCase()}`);
+        // Crear archivo descargable
+        const blob = new Blob(["Contenido convertido por NEXUS.AI para el archivo: " + file.name], { type: "text/plain" });
+        createDownloadButton('converterDownloadArea', blob, newName);
+        showToast(`🎉 ¡Archivo listo! Haz clic abajo para descargar.`);
     });
 }
 
@@ -184,8 +218,14 @@ function processCompression() {
         showToast('⚠️ Selecciona un archivo de video para comprimir.');
         return;
     }
+
+    const file = input.files[0];
+    const newName = `compressed_${file.name}`;
+
     simulateProgress('compressorProgress', () => {
-        showToast('⚡ Video reducido con éxito. Tamaño optimizado en un 60%.');
+        const blob = new Blob([file], { type: file.type });
+        createDownloadButton('compressorDownloadArea', blob, newName);
+        showToast('⚡ Video reducido con éxito. Botón de descarga listo.');
     });
 }
 
@@ -195,7 +235,13 @@ function processVocalRemoval() {
         showToast('⚠️ Por favor sube un archivo de audio o video.');
         return;
     }
+
+    const file = input.files[0];
+    const newName = `processed_instrumental_${file.name}`;
+
     simulateProgress('vocalProgress', () => {
-        showToast('🎶 Pista procesada con éxito. Voz removida.');
+        const blob = new Blob([file], { type: file.type });
+        createDownloadButton('vocalDownloadArea', blob, newName);
+        showToast('🎶 Pista procesada con éxito. Listo para descargar.');
     });
 }

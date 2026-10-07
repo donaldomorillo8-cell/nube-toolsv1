@@ -618,3 +618,43 @@ footer {
         gap: 15px;
     }
 }
+/* Control de visibilidad de secciones por pestañas */
+.tab-content {
+    display: none;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+.tab-content.active-content {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Áreas de descarga */
+.download-area {
+    margin-top: 25px;
+    text-align: center;
+}
+
+.download-link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #27c93f, #00f2fe);
+    color: #000;
+    font-weight: bold;
+    padding: 14px 28px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-family: var(--font-heading);
+    box-shadow: 0 0 20px rgba(39, 201, 63, 0.4);
+    transition: all 0.3s ease;
+}
+
+.download-link-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(39, 201, 63, 0.7);
+}
