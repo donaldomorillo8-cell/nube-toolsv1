@@ -1,30 +1,253 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="Convierte documentos, comprime videos y reduce el canal central de audio estéreo con procesamiento temporal y formatos claramente definidos."
-    />
-    <meta name="theme-color" content="#f8f7f2" />
-    <meta property="og:title" content="Nube Tools" />
-    <meta
-      property="og:description"
-      content="Herramientas digitales para convertir documentos y optimizar video y audio."
-    />
-    <meta property="og:type" content="website" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <title>Nube Tools — Procesamiento de archivos</title>
-    <link rel="stylesheet" href="/style.css" />
-    <script type="module" src="/javascript.js"></script>
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS AI - Suite Web Futurista</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@300;500;600;700&display=swap" rel="stylesheet">
+    <!-- SDK Oficial de Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <div class="bg-glow"></div>
+    <div class="grid-overlay"></div>
+
+    <!-- Navegación Principal -->
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa-solid fa-atom fa-spin-pulse"></i>
+            <span>NEXUS<span class="highlight">.AI</span></span>
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#about" class="active"><i class="fa-solid fa-circle-info"></i> Información</a></li>
+                <li><a href="#features"><i class="fa-solid fa-cubes"></i> Módulos</a></li>
+                <li><a href="#converter"><i class="fa-solid fa-file-export"></i> Conversor</a></li>
+                <li><a href="#compressor"><i class="fa-solid fa-file-video"></i> Compresor</a></li>
+                <li><a href="#vocal-remover"><i class="fa-solid fa-wave-square"></i> Audio AI</a></li>
+            </ul>
+        </nav>
+        <div class="auth-buttons" id="authContainer">
+            <button class="btn btn-outline" onclick="openAuthModal('login')"><i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión</button>
+            <button class="btn btn-primary" onclick="openAuthModal('register')"><i class="fa-solid fa-user-plus"></i> Registrarse</button>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="container">
+        
+        <!-- Sección de Inicio y Explicación de la Página -->
+        <section id="about" class="hero-section">
+            <div class="hero-content">
+                <div class="badge"><i class="fa-solid fa-bolt"></i> PLATAFORMA INTEGRAL DE PROCESAMIENTO MULTIMEDIA</div>
+                <h1>EL FUTURO DEL PROCESAMIENTO DIGITAL EN UN SOLO LUGAR</h1>
+                <p class="description">
+                    NEXUS.AI integra algoritmos de aceleración cuántica para la manipulación de archivos multiformato, optimización de video sin pérdida y aislamiento inteligente de voces mediante aprendizaje profundo.
+                </p>
+                <div class="hero-actions">
+                    <a href="#features" class="btn btn-primary btn-glow">Explorar Funciones <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="#converter" class="btn btn-outline">Probar Conversor</a>
+                </div>
+            </div>
+            
+            <!-- Panel de Estado del Sistema Futurista -->
+            <div class="hero-card">
+                <div class="card-header">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                    <span class="title"><i class="fa-solid fa-server"></i> NODO_ESTADO_SISTEMA v4.0.2</span>
+                </div>
+                <div class="card-body">
+                    <div class="status-item">
+                        <span>Motor de Conversión Documental</span>
+                        <span class="status active">EN LÍNEA (99.9%)</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Compresor H.265 / AV1</span>
+                        <span class="status active">OPTIMIZADO</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Aislamiento de Voz (Spleeter AI)</span>
+                        <span class="status active">LISTO</span>
+                    </div>
+                    <div class="code-preview">
+                        <code>> NEXUS.initSystemServices();</code><br>
+                        <code>> Encrypting user sessions... [AES-256]</code><br>
+                        <code>> Neural Audio Splitter ready for stream...</code>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Arquitectura y Módulos -->
+        <section id="features" class="section">
+            <h2 class="section-title"><i class="fa-solid fa-network-wired"></i> Arquitectura y Funcionamiento</h2>
+            <p class="section-subtitle">¿Cómo funciona la infraestructura de NEXUS.AI?</p>
+
+            <div class="cards-grid">
+                <div class="glass-card">
+                    <div class="icon-box"><i class="fa-solid fa-file-word"></i></div>
+                    <h3>Conversión Multi-Formato</h3>
+                    <p>Convierte documentos PDF, Word, PowerPoint, Excel, imágenes y más a cualquier formato compatible mediante renderizado vectorial directo.</p>
+                </div>
+                <div class="glass-card">
+                    <div class="icon-box"><i class="fa-solid fa-video"></i></div>
+                    <h3>Reducción de Video</h3>
+                    <p>Comprime el bitrate y el tamaño de almacenamiento de cualquier archivo MP4, AVI o MKV reteniendo una calidad visual nítida.</p>
+                </div>
+                <div class="glass-card">
+                    <div class="icon-box"><i class="fa-solid fa-microphone-slash"></i></div>
+                    <h3>Eliminación de Voz AI</h3>
+                    <p>Filtra frecuencias armónicas de voz humana en pistas de audio y video para extraer pistas acapella o instrumentales en segundos.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Herramienta 1: Conversor -->
+        <section id="converter" class="section tool-section">
+            <div class="tool-card">
+                <h2><i class="fa-solid fa-file-export"></i> Conversor Universal de Archivos</h2>
+                <p>Arrastra tu archivo o selecciónalo para convertirlo a Word, PDF, PowerPoint o formatos adicionales.</p>
+                
+                <div class="drop-zone" id="converterDropZone">
+                    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                    <p>Arrastra y suelta tu archivo aquí o <span class="highlight-link">selecciona un archivo</span></p>
+                    <input type="file" id="converterInput" hidden>
+                </div>
+
+                <div class="tool-controls">
+                    <label for="targetFormat">Formato de Salida Target:</label>
+                    <select id="targetFormat" class="custom-select">
+                        <option value="docx">Microsoft Word (.docx)</option>
+                        <option value="pdf">Documento PDF (.pdf)</option>
+                        <option value="pptx">Microsoft PowerPoint (.pptx)</option>
+                        <option value="xlsx">Microsoft Excel (.xlsx)</option>
+                        <option value="txt">Texto Plano (.txt)</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="processConversion()"><i class="fa-solid fa-gear"></i> Convertir Archivo</button>
+                </div>
+                <div class="progress-bar-container" id="converterProgress">
+                    <div class="progress-bar"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Herramienta 2: Compresor de Video -->
+        <section id="compressor" class="section tool-section">
+            <div class="tool-card">
+                <h2><i class="fa-solid fa-file-video"></i> Reductor de Tamaño de Video</h2>
+                <p>Reduce drásticamente el peso de tus clips sin perder calidad perceptible.</p>
+                
+                <div class="drop-zone" id="compressorDropZone">
+                    <i class="fa-solid fa-film upload-icon"></i>
+                    <p>Arrastra tu video (MP4, MOV, AVI, MKV) o <span class="highlight-link">busca en tu equipo</span></p>
+                    <input type="file" id="compressorInput" accept="video/*" hidden>
+                </div>
+
+                <div class="tool-controls">
+                    <label for="compressionLevel">Nivel de Compresión:</label>
+                    <select id="compressionLevel" class="custom-select">
+                        <option value="moderate">Equilibrado (Recomendado - 50% reducción)</option>
+                        <option value="high">Alta Compresión (75% reducción)</option>
+                        <option value="extreme">Ultra Compresión (Max. espacio)</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="processCompression()"><i class="fa-solid fa-compress"></i> Reducir Video</button>
+                </div>
+                <div class="progress-bar-container" id="compressorProgress">
+                    <div class="progress-bar"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Herramienta 3: Quitar Voz -->
+        <section id="vocal-remover" class="section tool-section">
+            <div class="tool-card">
+                <h2><i class="fa-solid fa-wave-square"></i> Aislamiento y Quitar Voz de Video/Audio</h2>
+                <p>Separa la pista instrumental de la voz humana mediante procesamiento neural de audio.</p>
+                
+                <div class="drop-zone" id="vocalDropZone">
+                    <i class="fa-solid fa-sliders upload-icon"></i>
+                    <p>Carga un video o archivo de audio MP3/MP4/WAV <span class="highlight-link">explorar</span></p>
+                    <input type="file" id="vocalInput" accept="video/*,audio/*" hidden>
+                </div>
+
+                <div class="tool-controls">
+                    <label for="vocalMode">Modo de Extracción:</label>
+                    <select id="vocalMode" class="custom-select">
+                        <option value="remove">Eliminar Voz (Extraer Instrumental)</option>
+                        <option value="isolate">Aislar Voz (Extraer Acapella)</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="processVocalRemoval()"><i class="fa-solid fa-wand-magic-sparkles"></i> Procesar Audio</button>
+                </div>
+                <div class="progress-bar-container" id="vocalProgress">
+                    <div class="progress-bar"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal para Autenticación (Login / Registro / Google) -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+            <div class="modal-tabs">
+                <button class="tab-btn active" id="tabLogin" onclick="switchAuthTab('login')">Iniciar Sesión</button>
+                <button class="tab-btn" id="tabRegister" onclick="switchAuthTab('register')">Registrarse</button>
+            </div>
+
+            <!-- Formulario de Login -->
+            <form id="formLogin" class="auth-form active-form" onsubmit="handleLogin(event)">
+                <h3>Bienvenido a NEXUS</h3>
+                <div class="input-group">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" placeholder="Correo Electrónico" required>
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" placeholder="Contraseña" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Entrar a la Red</button>
+                
+                <div class="divider"><span>o continúa con</span></div>
+                
+                <!-- Botón Login de Google -->
+                <div id="googleBtnLogin" class="google-btn-wrapper"></div>
+            </form>
+
+            <!-- Formulario de Registro -->
+            <form id="formRegister" class="auth-form" onsubmit="handleRegister(event)">
+                <h3>Crea tu Cuenta Cyber</h3>
+                <div class="input-group">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" placeholder="Nombre de Usuario" required>
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" placeholder="Correo Electrónico" required>
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" placeholder="Contraseña" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Crear Cuenta</button>
+
+                <div class="divider"><span>o regístrate con</span></div>
+                
+                <!-- Botón Registro de Google -->
+                <div id="googleBtnRegister" class="google-btn-wrapper"></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <footer>
+        <p>&copy; 2026 NEXUS.AI Systems. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
 </html>
