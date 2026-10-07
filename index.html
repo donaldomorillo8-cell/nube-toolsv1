@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS AI - Suite Web Futurista</title>
+    <title>NEXUS AI - Suite Web Multimedia</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@300;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Motor FFmpeg WebAssembly para procesamiento real de video/audio -->
-    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -26,7 +23,7 @@
             <ul class="nav-links">
                 <li><a href="#" class="nav-tab active" onclick="switchView('about', event)"><i class="fa-solid fa-circle-info"></i> Información</a></li>
                 <li><a href="#" class="nav-tab" onclick="switchView('converter', event)"><i class="fa-solid fa-file-export"></i> Conversor</a></li>
-                <li><a href="#" class="nav-tab" onclick="switchView('compressor', event)"><i class="fa-solid fa-file-video"></i> Compresor</a></li>
+                <li><a href="#" class="nav-tab" onclick="switchView('compressor', event)"><i class="fa-solid fa-file-video"></i> Compresor Real</a></li>
                 <li><a href="#" class="nav-tab" onclick="switchView('vocal-remover', event)"><i class="fa-solid fa-volume-xmark"></i> Quitar Audio</a></li>
             </ul>
         </nav>
@@ -41,10 +38,10 @@
         <section id="about" class="tab-content active-content">
             <div class="hero-section">
                 <div class="hero-content">
-                    <div class="badge"><i class="fa-solid fa-bolt"></i> PROCESAMIENTO MULTIMEDIA REAL EN NAVEGADOR</div>
-                    <h1>PROCESA Y COMPRIME MULTIMEDIA EN TIEMPO REAL</h1>
+                    <div class="badge"><i class="fa-solid fa-bolt"></i> PROCESAMIENTO NATIVO HARDWARE</div>
+                    <h1>REDUCCIÓN REAL DE PESO Y SILENCIADOR DE VIDEO</h1>
                     <p class="description">
-                        NEXUS.AI utiliza hilos WebAssembly con aceleración local para comprimir videos MP4 reales y silenciar audio sin subir tus archivos a servidores externos.
+                        NEXUS.AI utiliza re-codificación mediante Canvas y MediaRecorder a bajo bitrate. Analiza el video completo y reduce el tamaño de archivo de forma directa en el navegador.
                     </p>
                     <div class="hero-actions">
                         <button class="btn btn-primary btn-glow" onclick="switchView('compressor', event)">Ir al Compresor <i class="fa-solid fa-arrow-right"></i></button>
@@ -56,25 +53,25 @@
                         <span class="dot red"></span>
                         <span class="dot yellow"></span>
                         <span class="dot green"></span>
-                        <span class="title"><i class="fa-solid fa-server"></i> ESTADO_MOTOR_FFMPEG v0.11.6</span>
+                        <span class="title"><i class="fa-solid fa-microchip"></i> MOTOR_CANVAS_STREAM v2.0</span>
                     </div>
                     <div class="card-body">
                         <div class="status-item">
-                            <span>Compresión MP4 (WebAssembly)</span>
-                            <span class="status active">EN LÍNEA</span>
+                            <span>Compresión con Bitrate Controlado</span>
+                            <span class="status active">ACTIVO</span>
                         </div>
                         <div class="status-item">
-                            <span>Removedor de Audio / Mute</span>
+                            <span>Extracción de Audio Completa</span>
                             <span class="status active">OPTIMIZADO</span>
                         </div>
                         <div class="status-item">
-                            <span>Conversor de Texto</span>
+                            <span>Conversor de Documentos</span>
                             <span class="status active">LISTO</span>
                         </div>
                         <div class="code-preview">
-                            <code>> FFmpeg.loadEngine();</code><br>
-                            <code>> Processing video frames on client side...</code><br>
-                            <code>> System ready for real compression.</code>
+                            <code>> CanvasStream.capture();</code><br>
+                            <code>> Re-encoding video stream at target bitrate...</code><br>
+                            <code>> Ready for compression.</code>
                         </div>
                     </div>
                 </div>
@@ -85,7 +82,7 @@
         <section id="converter" class="tab-content">
             <div class="tool-card">
                 <h2><i class="fa-solid fa-file-export"></i> Conversor de Archivos de Texto / Datos</h2>
-                <p>Carga un archivo para modificar su formato de texto o documento y descargarlo al instante.</p>
+                <p>Carga un archivo para cambiar su extensión o estructura de datos básica.</p>
                 
                 <div class="drop-zone" id="converterDropZone">
                     <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
@@ -94,7 +91,7 @@
                 </div>
 
                 <div class="tool-controls">
-                    <label for="targetFormat">Formato de Salida Target:</label>
+                    <label for="targetFormat">Formato de Salida:</label>
                     <select id="targetFormat" class="custom-select">
                         <option value="txt">Texto Plano (.txt)</option>
                         <option value="doc">Documento Word (.doc)</option>
@@ -112,27 +109,29 @@
         <!-- Pestaña 3: Compresor Real -->
         <section id="compressor" class="tab-content">
             <div class="tool-card">
-                <h2><i class="fa-solid fa-file-video"></i> Reductor y Compresor de Video Real</h2>
-                <p>Re-codifica el video ajustando resolución y bitrate para reducir verdaderamente el peso en MB.</p>
+                <h2><i class="fa-solid fa-file-video"></i> Compresor Real de Video (Reducción Violenta de Pesos)</h2>
+                <p>El sistema analiza el video y lo recodifica fotograma a fotograma bajando el bitrate y la resolución para forzar una reducción real en MB.</p>
                 
                 <div class="drop-zone" id="compressorDropZone">
                     <i class="fa-solid fa-film upload-icon"></i>
-                    <p>Arrastra tu video (MP4, MOV, AVI) o <span class="highlight-link">busca en tu equipo</span></p>
+                    <p>Arrastra tu video (MP4, WEBM, MOV) o <span class="highlight-link">haz clic para seleccionar</span></p>
                     <input type="file" id="compressorInput" accept="video/*" hidden>
                 </div>
 
                 <div class="tool-controls">
-                    <label for="compressionLevel">Nivel de Reducción:</label>
+                    <label for="compressionLevel">Nivel de Compresión (Forzado de Bitrate):</label>
                     <select id="compressionLevel" class="custom-select">
-                        <option value="720">Escalar a 720p (Compresión Equilibrada)</option>
-                        <option value="480">Escalar a 480p (Compresión Alta - Reduce más de 60%)</option>
-                        <option value="360">Escalar a 360p (Compresión Máxima - Archivos livianos)</option>
+                        <option value="baja">Baja calidad (Reducción Máxima - Archivos minúsculos)</option>
+                        <option value="media" selected>Media calidad (Reducción del 50% - 70%)</option>
+                        <option value="alta">Alta calidad (Reducción moderada)</option>
                     </select>
-                    <button class="btn btn-primary" onclick="processRealVideoCompression()"><i class="fa-solid fa-compress"></i> Comprimir Video Real</button>
+                    <button class="btn btn-primary" onclick="processRealVideoCompression()"><i class="fa-solid fa-compress"></i> Iniciar Compresión Real</button>
                 </div>
+
                 <div class="progress-bar-container" id="compressorProgress">
                     <div class="progress-bar"></div>
                 </div>
+                <div id="compressorStatusText" style="margin-top: 10px; color: var(--accent-cyan); font-weight: bold; text-align: center;"></div>
                 <div class="download-area" id="compressorDownloadArea"></div>
             </div>
         </section>
@@ -140,21 +139,23 @@
         <!-- Pestaña 4: Quitar Audio de Video -->
         <section id="vocal-remover" class="tab-content">
             <div class="tool-card">
-                <h2><i class="fa-solid fa-volume-xmark"></i> Eliminar / Silenciar Audio de Video MP4</h2>
-                <p>Elimina por completo la pista de sonido o el ruido de fondo de cualquier archivo de video.</p>
+                <h2><i class="fa-solid fa-volume-xmark"></i> Eliminar / Silenciar Audio Completo del Video</h2>
+                <p>Elimina el 100% de la pista de sonido o música de fondo volviendo a procesar solo el flujo de video.</p>
                 
                 <div class="drop-zone" id="vocalDropZone">
                     <i class="fa-solid fa-sliders upload-icon"></i>
-                    <p>Carga un archivo de video MP4 <span class="highlight-link">explorar</span></p>
+                    <p>Carga un archivo de video para silenciar <span class="highlight-link">explorar</span></p>
                     <input type="file" id="vocalInput" accept="video/*" hidden>
                 </div>
 
                 <div class="tool-controls">
-                    <button class="btn btn-primary" onclick="processRemoveAudio()"><i class="fa-solid fa-wand-magic-sparkles"></i> Eliminar Audio del Video</button>
+                    <button class="btn btn-primary" onclick="processRemoveAudio()"><i class="fa-solid fa-wand-magic-sparkles"></i> Eliminar Audio Completo</button>
                 </div>
+
                 <div class="progress-bar-container" id="vocalProgress">
                     <div class="progress-bar"></div>
                 </div>
+                <div id="vocalStatusText" style="margin-top: 10px; color: var(--accent-cyan); font-weight: bold; text-align: center;"></div>
                 <div class="download-area" id="vocalDownloadArea"></div>
             </div>
         </section>

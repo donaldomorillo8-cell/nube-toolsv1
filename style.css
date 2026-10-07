@@ -330,7 +330,7 @@ body {
     width: 0%;
     height: 100%;
     background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
-    transition: width 0.3s linear;
+    transition: width 0.2s ease-out;
 }
 
 .download-area {
