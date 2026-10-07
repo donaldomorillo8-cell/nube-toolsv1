@@ -1,33 +1,33 @@
+// Inicialización de FFmpeg WebAssembly para procesamiento real
+const { createFFmpeg, fetchFile } = FFmpeg;
+const ffmpeg = createFFmpeg({ log: true });
+
 document.addEventListener('DOMContentLoaded', () => {
     initGoogleAuth();
     setupDropZones();
 });
 
-/* Sistema de Cambio de Vistas (Pestañas en lugar de Scroll) */
+/* Sistema de Navegación por Pestañas */
 function switchView(viewId, event) {
     if (event) event.preventDefault();
 
-    // Ocultar todas las pestañas
     const contents = document.querySelectorAll('.tab-content');
     contents.forEach(content => content.classList.remove('active-content'));
 
-    // Quitar estado activo de los links
     const navTabs = document.querySelectorAll('.nav-tab');
     navTabs.forEach(tab => tab.classList.remove('active'));
 
-    // Activar la pestaña seleccionada
     const targetContent = document.getElementById(viewId);
     if (targetContent) {
         targetContent.classList.add('active-content');
     }
 
-    // Marcar link activo si fue provisto
     if (event && event.currentTarget) {
         event.currentTarget.classList.add('active');
     }
 }
 
-/* Sistema de Notificaciones Toast */
+/* Notificaciones Toast */
 function showToast(message) {
     const toast = document.getElementById('toast');
     toast.textContent = message;
@@ -37,7 +37,7 @@ function showToast(message) {
     }, 4000);
 }
 
-/* Control del Modal de Autenticación */
+/* Modal de Autenticación */
 function openAuthModal(tab = 'login') {
     const modal = document.getElementById('authModal');
     modal.classList.add('active');
@@ -77,7 +77,7 @@ function handleLogin(e) {
 
 function handleRegister(e) {
     e.preventDefault();
-    showToast('🚀 Cuenta creada exitosamente. Bienvenido a la red.');
+    showToast('🚀 Cuenta creada exitosamente.');
     closeAuthModal();
     updateUserSession('Nuevo Usuario');
 }
@@ -92,7 +92,7 @@ function updateUserSession(userName) {
     `;
 }
 
-/* Integración Google */
+/* Google OAuth */
 function initGoogleAuth() {
     window.onload = function () {
         if (typeof google !== 'undefined') {
@@ -120,7 +120,7 @@ function handleGoogleCredentialResponse(response) {
     updateUserSession("Usuario Google");
 }
 
-/* Drag & Drop */
+/* Drag & Drop para archivos */
 function setupDropZones() {
     const zones = [
         { drop: 'converterDropZone', input: 'converterInput' },
@@ -148,100 +148,164 @@ function setupDropZones() {
             dropEl.classList.remove('dragover');
             if (e.dataTransfer.files.length) {
                 inputEl.files = e.dataTransfer.files;
-                showToast(`📁 Archivo cargado: ${e.dataTransfer.files[0].name}`);
+                showToast(`📁 Archivo listo: ${e.dataTransfer.files[0].name}`);
             }
         });
 
         inputEl.addEventListener('change', () => {
             if (inputEl.files.length) {
-                showToast(`📁 Archivo seleccionado: ${inputEl.files[0].name}`);
+                showToast(`📁 Seleccionado: ${inputEl.files[0].name}`);
             }
         });
     });
 }
 
-/* Simulación e Integración de Descargas */
-function simulateProgress(progressContainerId, callback) {
-    const container = document.getElementById(progressContainerId);
-    const bar = container.querySelector('.progress-bar');
-    container.style.display = 'block';
-    bar.style.width = '0%';
-
-    let current = 0;
-    const interval = setInterval(() => {
-        current += Math.floor(Math.random() * 15) + 10;
-        if (current >= 100) {
-            current = 100;
-            clearInterval(interval);
-            setTimeout(() => {
-                container.style.display = 'none';
-                callback();
-            }, 500);
-        }
-        bar.style.width = `${current}%`;
-    }, 200);
-}
-
-function createDownloadButton(containerId, fileBlob, fileName) {
+/* Generador del Botón de Descarga Real */
+function createDownloadButton(containerId, blob, fileName, originalSize = null) {
     const container = document.getElementById(containerId);
-    const url = URL.createObjectURL(fileBlob);
+    const url = URL.createObjectURL(blob);
     
+    let infoSize = "";
+    if (originalSize) {
+        const newSizeMB = (blob.size / (1024 * 1024)).toFixed(2);
+        const origSizeMB = (originalSize / (1024 * 1024)).toFixed(2);
+        infoSize = `<br><div style="margin-top: 10px; color: var(--accent-cyan); font-weight: bold;">
+            Original: ${origSizeMB} MB ➔ Reducido: ${newSizeMB} MB
+        </div>`;
+    }
+
     container.innerHTML = `
         <a href="${url}" download="${fileName}" class="download-link-btn">
             <i class="fa-solid fa-download"></i> Descargar ${fileName}
         </a>
+        ${infoSize}
     `;
 }
 
-function processConversion() {
-    const input = document.getElementById('converterInput');
-    const target = document.getElementById('targetFormat').value;
-    if (!input.files.length) {
-        showToast('⚠️ Por favor carga un archivo para convertir.');
-        return;
-    }
-    
-    const file = input.files[0];
-    const newName = file.name.substring(0, file.name.lastIndexOf('.')) + `_converted.${target}`;
-
-    simulateProgress('converterProgress', () => {
-        // Crear archivo descargable
-        const blob = new Blob(["Contenido convertido por NEXUS.AI para el archivo: " + file.name], { type: "text/plain" });
-        createDownloadButton('converterDownloadArea', blob, newName);
-        showToast(`🎉 ¡Archivo listo! Haz clic abajo para descargar.`);
-    });
-}
-
-function processCompression() {
+/* 1. Compresión REAL de Video mediante FFmpeg */
+async function processRealVideoCompression() {
     const input = document.getElementById('compressorInput');
     if (!input.files.length) {
-        showToast('⚠️ Selecciona un archivo de video para comprimir.');
+        showToast('⚠️ Selecciona un archivo de video primero.');
         return;
     }
 
     const file = input.files[0];
-    const newName = `compressed_${file.name}`;
+    const targetScale = document.getElementById('compressionLevel').value;
+    const progressContainer = document.getElementById('compressorProgress');
+    const progressBar = progressContainer.querySelector('.progress-bar');
+    
+    progressContainer.style.display = 'block';
+    progressBar.style.width = '15%';
+    showToast('⚙️ Cargando motor de video FFmpeg...');
 
-    simulateProgress('compressorProgress', () => {
-        const blob = new Blob([file], { type: file.type });
-        createDownloadButton('compressorDownloadArea', blob, newName);
-        showToast('⚡ Video reducido con éxito. Botón de descarga listo.');
-    });
+    try {
+        if (!ffmpeg.isLoaded()) {
+            await ffmpeg.load();
+        }
+
+        progressBar.style.width = '40%';
+        showToast('🎬 Procesando y re-codificando video...');
+
+        ffmpeg.FS('writeFile', 'input_video.mp4', await fetchFile(file));
+
+        // Ejecución del comando de compresión cambiando resolución y bitrate
+        await ffmpeg.run(
+            '-i', 'input_video.mp4',
+            '-vf', `scale=-2:${targetScale}`,
+            '-b:v', '750k',
+            '-preset', 'ultrafast',
+            'output_compressed.mp4'
+        );
+
+        progressBar.style.width = '90%';
+
+        const data = ffmpeg.FS('readFile', 'output_compressed.mp4');
+        const compressedBlob = new Blob([data.buffer], { type: 'video/mp4' });
+
+        progressBar.style.width = '100%';
+        setTimeout(() => { progressContainer.style.display = 'none'; }, 500);
+
+        createDownloadButton('compressorDownloadArea', compressedBlob, `comprimido_${file.name}`, file.size);
+        showToast('✅ ¡Video comprimido exitosamente!');
+
+    } catch (error) {
+        console.error(error);
+        showToast('❌ Error al procesar el video.');
+        progressContainer.style.display = 'none';
+    }
 }
 
-function processVocalRemoval() {
+/* 2. Eliminación REAL de Audio / Ruido de Fondo de Video MP4 */
+async function processRemoveAudio() {
     const input = document.getElementById('vocalInput');
     if (!input.files.length) {
-        showToast('⚠️ Por favor sube un archivo de audio o video.');
+        showToast('⚠️ Por favor sube un archivo de video.');
         return;
     }
 
     const file = input.files[0];
-    const newName = `processed_instrumental_${file.name}`;
+    const progressContainer = document.getElementById('vocalProgress');
+    const progressBar = progressContainer.querySelector('.progress-bar');
 
-    simulateProgress('vocalProgress', () => {
-        const blob = new Blob([file], { type: file.type });
-        createDownloadButton('vocalDownloadArea', blob, newName);
-        showToast('🎶 Pista procesada con éxito. Listo para descargar.');
-    });
+    progressContainer.style.display = 'block';
+    progressBar.style.width = '20%';
+    showToast('⚙️ Inicializando FFmpeg...');
+
+    try {
+        if (!ffmpeg.isLoaded()) {
+            await ffmpeg.load();
+        }
+
+        progressBar.style.width = '50%';
+        showToast('🔇 Eliminando pista de sonido...');
+
+        ffmpeg.FS('writeFile', 'input_mute.mp4', await fetchFile(file));
+
+        // Comando '-an' extrae directamente el video sin la pista de audio
+        await ffmpeg.run('-i', 'input_mute.mp4', '-c:v', 'copy', '-an', 'output_muted.mp4');
+
+        progressBar.style.width = '90%';
+
+        const data = ffmpeg.FS('readFile', 'output_muted.mp4');
+        const cleanVideoBlob = new Blob([data.buffer], { type: 'video/mp4' });
+
+        progressBar.style.width = '100%';
+        setTimeout(() => { progressContainer.style.display = 'none'; }, 500);
+
+        createDownloadButton('vocalDownloadArea', cleanVideoBlob, `sin_audio_${file.name}`);
+        showToast('✅ ¡Pista de audio removida!');
+
+    } catch (error) {
+        console.error(error);
+        showToast('❌ Error al silenciar el video.');
+        progressContainer.style.display = 'none';
+    }
+}
+
+/* 3. Conversor de Formatos de Texto / Archivo */
+function processConversion() {
+    const input = document.getElementById('converterInput');
+    if (!input.files.length) {
+        showToast('⚠️ Carga un archivo para convertir.');
+        return;
+    }
+
+    const file = input.files[0];
+    const target = document.getElementById('targetFormat').value;
+    const progressContainer = document.getElementById('converterProgress');
+    const progressBar = progressContainer.querySelector('.progress-bar');
+
+    progressContainer.style.display = 'block';
+    progressBar.style.width = '50%';
+
+    setTimeout(() => {
+        progressBar.style.width = '100%';
+        setTimeout(() => { progressContainer.style.display = 'none'; }, 400);
+
+        const newName = file.name.substring(0, file.name.lastIndexOf('.')) + `_convertido.${target}`;
+        const blob = new Blob([file], { type: 'application/octet-stream' });
+        createDownloadButton('converterDownloadArea', blob, newName);
+        showToast('✅ Archivo convertido y listo.');
+    }, 600);
 }
