@@ -156,7 +156,6 @@ function setupDropZones() {
     });
 }
 
-/* Crear botón de descarga e informar de tamaños reales */
 function createDownloadButton(containerId, blob, fileName, originalSize = null) {
     const container = document.getElementById(containerId);
     const url = URL.createObjectURL(blob);
@@ -181,8 +180,22 @@ function createDownloadButton(containerId, blob, fileName, originalSize = null) 
     `;
 }
 
+/* Helper para crear elementos de video dinámicos sin restricciones */
+function createHiddenVideoElement(file) {
+    return new Promise((resolve, reject) => {
+        const video = document.createElement('video');
+        video.muted = true;
+        video.playsInline = true;
+        video.autoplay = true;
+        video.src = URL.createObjectURL(file);
+        
+        video.onloadeddata = () => resolve(video);
+        video.onerror = (err) => reject("Error al cargar el archivo de video.");
+    });
+}
+
 /* -------------------------------------------------------------------
-   1. MOTOR NATIVO DE COMPRESIÓN REAL (Recodificación vía Canvas/MediaRecorder)
+   1. MOTOR COMPRESOR REAL (Corregido sin errores de reproducción)
 ------------------------------------------------------------------- */
 async function processRealVideoCompression() {
     const input = document.getElementById('compressorInput');
@@ -201,86 +214,83 @@ async function processRealVideoCompression() {
     downloadArea.innerHTML = '';
     progressContainer.style.display = 'block';
     progressBar.style.width = '0%';
-    statusText.textContent = "Analizando fotogramas del video...";
+    statusText.textContent = "Iniciando motor de compresión...";
 
-    // Configuración estricta de Bitrate según nivel
-    let targetBitrate = 400000; // Baja calidad: 400 kbps (fuerza reducción masiva)
-    let scaleFactor = 0.5;
+    try {
+        const video = await createHiddenVideoElement(file);
 
-    if (level === 'media') {
-        targetBitrate = 800000; // 800 kbps
-        scaleFactor = 0.7;
-    } else if (level === 'alta') {
-        targetBitrate = 1500000; // 1.5 Mbps
-        scaleFactor = 0.9;
-    }
+        let targetBitrate = 300000; // Baja calidad: 300 kbps (reducción agresiva)
+        let scaleFactor = 0.5;
 
-    const video = document.createElement('video');
-    video.src = URL.createObjectURL(file);
-    video.muted = true;
-    video.playsInline = true;
-
-    await new Promise((resolve) => {
-        video.onloadedmetadata = () => resolve();
-    });
-
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-
-    canvas.width = Math.floor(video.videoWidth * scaleFactor);
-    canvas.height = Math.floor(video.videoHeight * scaleFactor);
-
-    // Flujo de captura del canvas
-    const stream = canvas.captureStream(30);
-
-    let mimeType = 'video/webm;codecs=vp8';
-    if (!MediaRecorder.isTypeSupported(mimeType)) {
-        mimeType = 'video/webm';
-    }
-
-    const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: mimeType,
-        videoBitsPerSecond: targetBitrate
-    });
-
-    const chunks = [];
-    mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunks.push(e.data);
-    };
-
-    mediaRecorder.onstop = () => {
-        const compressedBlob = new Blob(chunks, { type: 'video/webm' });
-        progressBar.style.width = '100%';
-        statusText.textContent = "¡Compresión finalizada!";
-        setTimeout(() => { progressContainer.style.display = 'none'; }, 500);
-
-        const newFileName = file.name.substring(0, file.name.lastIndexOf('.')) + '_comprimido.webm';
-        createDownloadButton('compressorDownloadArea', compressedBlob, newFileName, file.size);
-        showToast('✅ Video comprimido correctamente.');
-    };
-
-    video.play();
-    mediaRecorder.start();
-
-    function drawFrame() {
-        if (!video.paused && !video.ended) {
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            const currentProgress = Math.floor((video.currentTime / video.duration) * 100);
-            progressBar.style.width = `${currentProgress}%`;
-            statusText.textContent = `Procesando video real: ${currentProgress}% (${video.currentTime.toFixed(1)}s / ${video.duration.toFixed(1)}s)`;
-
-            requestAnimationFrame(drawFrame);
-        } else if (video.ended) {
-            mediaRecorder.stop();
+        if (level === 'media') {
+            targetBitrate = 600000; // 600 kbps
+            scaleFactor = 0.65;
+        } else if (level === 'alta') {
+            targetBitrate = 1200000; // 1.2 Mbps
+            scaleFactor = 0.85;
         }
-    }
 
-    drawFrame();
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = Math.max(160, Math.floor(video.videoWidth * scaleFactor));
+        canvas.height = Math.max(120, Math.floor(video.videoHeight * scaleFactor));
+
+        const stream = canvas.captureStream(25);
+
+        let options = { videoBitsPerSecond: targetBitrate };
+        if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+            options.mimeType = 'video/webm;codecs=vp8';
+        } else if (MediaRecorder.isTypeSupported('video/mp4')) {
+            options.mimeType = 'video/mp4';
+        }
+
+        const mediaRecorder = new MediaRecorder(stream, options);
+        const chunks = [];
+
+        mediaRecorder.ondataavailable = (e) => {
+            if (e.data && e.data.size > 0) chunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+            const type = options.mimeType || 'video/webm';
+            const compressedBlob = new Blob(chunks, { type: type });
+            progressBar.style.width = '100%';
+            statusText.textContent = "¡Procesamiento finalizado!";
+            setTimeout(() => { progressContainer.style.display = 'none'; }, 500);
+
+            const ext = type.includes('mp4') ? '.mp4' : '.webm';
+            const newFileName = file.name.substring(0, file.name.lastIndexOf('.')) + '_comprimido' + ext;
+            createDownloadButton('compressorDownloadArea', compressedBlob, newFileName, file.size);
+            showToast('✅ Video comprimido correctamente.');
+        };
+
+        mediaRecorder.start();
+        await video.play();
+
+        function step() {
+            if (!video.paused && !video.ended) {
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const progress = Math.floor((video.currentTime / video.duration) * 100);
+                progressBar.style.width = `${progress}%`;
+                statusText.textContent = `Comprimiendo: ${progress}% (${video.currentTime.toFixed(1)}s / ${video.duration.toFixed(1)}s)`;
+                requestAnimationFrame(step);
+            } else if (video.ended) {
+                mediaRecorder.stop();
+            }
+        }
+
+        step();
+
+    } catch (err) {
+        console.error(err);
+        showToast('❌ Error durante la compresión del video.');
+        progressContainer.style.display = 'none';
+        statusText.textContent = "Error de lectura en el formato de video.";
+    }
 }
 
 /* -------------------------------------------------------------------
-   2. ELIMINACIÓN Y SILENCIADO REAL DE AUDIO (Web Audio API Stream)
+   2. ELIMINACIÓN Y SILENCIADO REAL DE AUDIO (Sin fallos de reproducción)
 ------------------------------------------------------------------- */
 async function processRemoveAudio() {
     const input = document.getElementById('vocalInput');
@@ -298,68 +308,69 @@ async function processRemoveAudio() {
     downloadArea.innerHTML = '';
     progressContainer.style.display = 'block';
     progressBar.style.width = '0%';
-    statusText.textContent = "Extrayendo únicamente la pista de video...";
+    statusText.textContent = "Preparando remoción de pista de audio...";
 
-    const video = document.createElement('video');
-    video.src = URL.createObjectURL(file);
-    video.muted = true; // Forzamos el silenciado nativo del elemento
-    video.playsInline = true;
+    try {
+        const video = await createHiddenVideoElement(file);
 
-    await new Promise((resolve) => {
-        video.onloadedmetadata = () => resolve();
-    });
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
 
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+        // Capturar únicamente la pista visual
+        const stream = canvas.captureStream(25);
 
-    // Solo capturamos el stream visual del canvas, dejando el audio a cero
-    const stream = canvas.captureStream(30);
-
-    let mimeType = 'video/webm;codecs=vp8';
-    if (!MediaRecorder.isTypeSupported(mimeType)) {
-        mimeType = 'video/webm';
-    }
-
-    const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: mimeType
-    });
-
-    const chunks = [];
-    mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunks.push(e.data);
-    };
-
-    mediaRecorder.onstop = () => {
-        const cleanVideoBlob = new Blob(chunks, { type: 'video/webm' });
-        progressBar.style.width = '100%';
-        statusText.textContent = "¡Audio removido por completo!";
-        setTimeout(() => { progressContainer.style.display = 'none'; }, 500);
-
-        const newFileName = file.name.substring(0, file.name.lastIndexOf('.')) + '_sin_audio.webm';
-        createDownloadButton('vocalDownloadArea', cleanVideoBlob, newFileName);
-        showToast('✅ Video silenciado sin pista de audio.');
-    };
-
-    video.play();
-    mediaRecorder.start();
-
-    function renderVideo() {
-        if (!video.paused && !video.ended) {
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            const currentProgress = Math.floor((video.currentTime / video.duration) * 100);
-            progressBar.style.width = `${currentProgress}%`;
-            statusText.textContent = `Removiendo pista de sonido: ${currentProgress}%`;
-
-            requestAnimationFrame(renderVideo);
-        } else if (video.ended) {
-            mediaRecorder.stop();
+        let options = {};
+        if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+            options.mimeType = 'video/webm;codecs=vp8';
+        } else if (MediaRecorder.isTypeSupported('video/mp4')) {
+            options.mimeType = 'video/mp4';
         }
-    }
 
-    renderVideo();
+        const mediaRecorder = new MediaRecorder(stream, options);
+        const chunks = [];
+
+        mediaRecorder.ondataavailable = (e) => {
+            if (e.data && e.data.size > 0) chunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+            const type = options.mimeType || 'video/webm';
+            const cleanVideoBlob = new Blob(chunks, { type: type });
+            progressBar.style.width = '100%';
+            statusText.textContent = "¡Pista de sonido eliminada por completo!";
+            setTimeout(() => { progressContainer.style.display = 'none'; }, 500);
+
+            const ext = type.includes('mp4') ? '.mp4' : '.webm';
+            const newFileName = file.name.substring(0, file.name.lastIndexOf('.')) + '_sin_audio' + ext;
+            createDownloadButton('vocalDownloadArea', cleanVideoBlob, newFileName);
+            showToast('✅ Video silenciado sin pista de audio.');
+        };
+
+        mediaRecorder.start();
+        await video.play();
+
+        function step() {
+            if (!video.paused && !video.ended) {
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const progress = Math.floor((video.currentTime / video.duration) * 100);
+                progressBar.style.width = `${progress}%`;
+                statusText.textContent = `Procesando silenciado: ${progress}%`;
+                requestAnimationFrame(step);
+            } else if (video.ended) {
+                mediaRecorder.stop();
+            }
+        }
+
+        step();
+
+    } catch (err) {
+        console.error(err);
+        showToast('❌ Error al silenciar el video.');
+        progressContainer.style.display = 'none';
+        statusText.textContent = "Error de decodificación en el video.";
+    }
 }
 
 /* 3. Conversor de Archivos de Texto */

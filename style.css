@@ -26,7 +26,6 @@ body {
     overflow-x: hidden;
 }
 
-/* Fondos Neón / Futuristas */
 .bg-glow {
     position: fixed;
     top: -20%;
@@ -51,7 +50,6 @@ body {
     pointer-events: none;
 }
 
-/* Barra de Navegación */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -113,7 +111,6 @@ body {
     gap: 15px;
 }
 
-/* Botones */
 .btn {
     padding: 10px 22px;
     border-radius: 6px;
@@ -156,7 +153,6 @@ body {
     margin-top: 10px;
 }
 
-/* Contenedor Principal y Vistas por Pestaña */
 .container {
     max-width: 1200px;
     margin: 40px auto;
@@ -178,7 +174,6 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Hero Section (Información) */
 .hero-section {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -256,7 +251,6 @@ body {
     color: var(--accent-cyan);
 }
 
-/* Tarjetas de Herramientas */
 .tool-card {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -315,7 +309,6 @@ body {
     outline: none;
 }
 
-/* Progreso y Descargas */
 .progress-bar-container {
     width: 100%;
     height: 10px;
@@ -358,7 +351,6 @@ body {
     box-shadow: 0 0 30px rgba(39, 201, 63, 0.7);
 }
 
-/* Modales */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -471,7 +463,6 @@ body {
     margin-top: 15px;
 }
 
-/* Toast */
 .toast {
     position: fixed;
     bottom: 30px;

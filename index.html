@@ -91,7 +91,7 @@
                 </div>
 
                 <div class="tool-controls">
-                    <label for="targetFormat">Formato de Salida:</label>
+                    <label for="targetFormat">Formato de SalidaTarget:</label>
                     <select id="targetFormat" class="custom-select">
                         <option value="txt">Texto Plano (.txt)</option>
                         <option value="doc">Documento Word (.doc)</option>
@@ -160,6 +160,9 @@
             </div>
         </section>
     </main>
+
+    <!-- Elemento oculto para procesamiento de renderizado -->
+    <div id="videoContainer" style="display: none;"></div>
 
     <!-- Modal para Autenticación -->
     <div class="modal-overlay" id="authModal">
