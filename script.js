@@ -1,22 +1,37 @@
-// Estado global de autenticación del usuario
+// Estado global del usuario
 let isLoggedIn = false;
+let userProfile = { name: '', picture: '' };
 
 document.addEventListener('DOMContentLoaded', () => {
     initGoogleAuth();
     setupDropZones();
 });
 
+/* Función de apoyo para decodificar JWT de Google Auth */
+function parseJwt(token) {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    } catch (e) {
+        return null;
+    }
+}
+
 /* Verificar Sesión de Usuario */
 function checkUserAuth() {
     if (!isLoggedIn) {
-        showToast('🔒 Inicia sesión para usar esta herramienta.');
+        showToast('🔒 Inicia sesión para usar esta función.');
         openAuthModal('login');
         return false;
     }
     return true;
 }
 
-/* Sistema de Navegación por Pestañas */
+/* Navegación por Pestañas */
 function switchView(viewId, event) {
     if (event) event.preventDefault();
 
@@ -36,7 +51,7 @@ function switchView(viewId, event) {
     }
 }
 
-/* Notificaciones Toast */
+/* Toast */
 function showToast(message) {
     const toast = document.getElementById('toast');
     toast.textContent = message;
@@ -80,30 +95,42 @@ function switchAuthTab(tab) {
 function handleLogin(e) {
     e.preventDefault();
     isLoggedIn = true;
+    userProfile = { name: 'Usuario Pro', picture: '' };
     showToast('⚡ Sesión iniciada correctamente.');
     closeAuthModal();
-    updateUserSession('Usuario Pro');
+    updateUserSession();
 }
 
 function handleRegister(e) {
     e.preventDefault();
+    const nickname = document.getElementById('regUsername').value || 'Usuario Pro';
     isLoggedIn = true;
-    showToast('🚀 Cuenta creada con éxito en nube-toolsv1.');
+    userProfile = { name: nickname, picture: '' };
+    showToast('🚀 Cuenta creada en nube-toolsv1.');
     closeAuthModal();
-    updateUserSession('Nuevo Usuario');
+    updateUserSession();
 }
 
-function updateUserSession(userName) {
+function updateUserSession() {
     const authContainer = document.getElementById('authContainer');
+    
+    // Renderizar Foto si está disponible, o Icono
+    const avatarHtml = userProfile.picture 
+        ? `<img src="${userProfile.picture}" class="user-avatar-img" alt="Foto de Perfil">`
+        : `<div class="user-avatar-icon"><i class="fa-solid fa-user"></i></div>`;
+
     authContainer.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="color: var(--accent-cyan); font-weight: 600;"><i class="fa-solid fa-circle-user"></i> ${userName}</span>
-            <button class="btn btn-outline" onclick="location.reload()"><i class="fa-solid fa-power-off"></i> Salir</button>
+        <div class="user-profile-badge">
+            ${avatarHtml}
+            <span class="user-nickname">${userProfile.name}</span>
+            <button class="btn btn-outline" style="padding: 4px 10px; margin-left: 6px;" onclick="location.reload()" title="Cerrar Sesión">
+                <i class="fa-solid fa-power-off"></i>
+            </button>
         </div>
     `;
 }
 
-/* Google OAuth */
+/* Google OAuth con extracción de Perfil y Apodo */
 function initGoogleAuth() {
     window.onload = function () {
         if (typeof google !== 'undefined') {
@@ -126,13 +153,25 @@ function initGoogleAuth() {
 }
 
 function handleGoogleCredentialResponse(response) {
-    isLoggedIn = true;
-    showToast("✅ Autenticado mediante Google.");
-    closeAuthModal();
-    updateUserSession("Usuario Google");
+    const data = parseJwt(response.credential);
+    
+    if (data) {
+        isLoggedIn = true;
+        // Capturamos el apodo/nombre real y la foto de la cuenta de Google
+        userProfile = {
+            name: data.name || data.given_name || 'Usuario Google',
+            picture: data.picture || ''
+        };
+
+        showToast(`✅ ¡Bienvenido, ${userProfile.name}!`);
+        closeAuthModal();
+        updateUserSession();
+    } else {
+        showToast("⚠️ Ocurrió un inconveniente al obtener los datos de la cuenta.");
+    }
 }
 
-/* Drag & Drop Config */
+/* Drag & Drop */
 function setupDropZones() {
     const zones = [
         { drop: 'converterDropZone', input: 'converterInput' },
@@ -165,7 +204,7 @@ function setupDropZones() {
             if (!checkUserAuth()) return;
             if (e.dataTransfer.files.length) {
                 inputEl.files = e.dataTransfer.files;
-                showToast(`📁 Cargado: ${e.dataTransfer.files[0].name}`);
+                showToast(`📁 Archivo listo: ${e.dataTransfer.files[0].name}`);
             }
         });
 
@@ -187,9 +226,9 @@ function createDownloadButton(containerId, blob, fileName, originalSize = null) 
         const origSizeMB = (originalSize / (1024 * 1024)).toFixed(2);
         const percent = (100 - (blob.size / originalSize * 100)).toFixed(1);
         
-        infoSize = `<br><div style="margin-top: 12px; color: var(--accent-cyan); font-weight: 600; font-size: 1.05rem;">
-            Peso Original: ${origSizeMB} MB ➔ Nuevo Peso: ${newSizeMB} MB 
-            <span style="color: #10b981;">(-${percent}% reducido)</span>
+        infoSize = `<br><div style="margin-top: 12px; color: var(--accent-cyan); font-weight: 600;">
+            Original: ${origSizeMB} MB ➔ Comprimido: ${newSizeMB} MB 
+            <span style="color: #10b981;">(-${percent}%)</span>
         </div>`;
     }
 
@@ -208,19 +247,17 @@ function createVideoElement(file) {
         video.playsInline = true;
         video.src = URL.createObjectURL(file);
         video.onloadeddata = () => resolve(video);
-        video.onerror = () => reject("Error al procesar el archivo de video.");
+        video.onerror = () => reject("Error al procesar archivo.");
     });
 }
 
-/* -------------------------------------------------------------------
-   1. ELIMINACIÓN DE RUIDO DE FONDO (Filtro DSP Aislamiento Vocal)
-------------------------------------------------------------------- */
+/* 1. ELIMINACIÓN DE RUIDO DE FONDO (Aislamiento Vocal DSP) */
 async function processRemoveBackgroundNoise() {
     if (!checkUserAuth()) return;
 
     const input = document.getElementById('vocalInput');
     if (!input.files.length) {
-        showToast('⚠️ Selecciona un archivo de video primero.');
+        showToast('⚠️ Selecciona un archivo de video.');
         return;
     }
 
@@ -234,29 +271,24 @@ async function processRemoveBackgroundNoise() {
     downloadArea.innerHTML = '';
     progressContainer.style.display = 'block';
     progressBar.style.width = '0%';
-    statusText.textContent = "Iniciando procesador DSP de audio...";
+    statusText.textContent = "Aplicando filtros DSP anti-ruido...";
 
     try {
         const video = await createVideoElement(file);
 
-        // Inicializar Web Audio API para filtrar el ruido de fondo
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         const audioCtx = new AudioContext();
-        
         const source = audioCtx.createMediaElementSource(video);
         
-        // 1. Filtro Paso Alto (Elimina zumbidos graves de fondo < 150Hz)
         const highPass = audioCtx.createBiquadFilter();
         highPass.type = "highpass";
         highPass.frequency.value = noiseIntensity === 'fuerte' ? 220 : 150;
 
-        // 2. Filtro Notch (Elimina zumbido eléctrico común a 50Hz / 60Hz)
         const notchFilter = audioCtx.createBiquadFilter();
         notchFilter.type = "notch";
         notchFilter.frequency.value = 60;
         notchFilter.Q.value = 10;
 
-        // 3. Compresor de dinámica para resaltar únicamente la voz hablada
         const compressor = audioCtx.createDynamicsCompressor();
         compressor.threshold.value = -24;
         compressor.knee.value = 30;
@@ -264,7 +296,6 @@ async function processRemoveBackgroundNoise() {
         compressor.attack.value = 0.003;
         compressor.release.value = 0.25;
 
-        // Enlazar la cadena de audio: Video -> Highpass -> Notch -> Compresor -> Destination
         source.connect(highPass);
         highPass.connect(notchFilter);
         notchFilter.connect(compressor);
@@ -272,14 +303,12 @@ async function processRemoveBackgroundNoise() {
         const audioDestination = audioCtx.createMediaStreamDestination();
         compressor.connect(audioDestination);
 
-        // Renderizar video en Canvas
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         const canvasStream = canvas.captureStream(25);
 
-        // Combinar stream visual del Canvas con el audio filtrado (Voz clara)
         const cleanAudioTrack = audioDestination.stream.getAudioTracks()[0];
         const processedStream = new MediaStream([
             ...canvasStream.getVideoTracks(),
@@ -301,12 +330,12 @@ async function processRemoveBackgroundNoise() {
         mediaRecorder.onstop = () => {
             const cleanBlob = new Blob(chunks, { type: options.mimeType || 'video/webm' });
             progressBar.style.width = '100%';
-            statusText.textContent = "¡Ruido de fondo eliminado con éxito!";
+            statusText.textContent = "¡Ruido de fondo removido!";
             setTimeout(() => { progressContainer.style.display = 'none'; }, 500);
 
             const newFileName = file.name.substring(0, file.name.lastIndexOf('.')) + '_voz_limpia.webm';
             createDownloadButton('vocalDownloadArea', cleanBlob, newFileName);
-            showToast('✅ Ruido de fondo filtrado. Voz aislada.');
+            showToast('✅ Ruido filtrado exitosamente.');
             audioCtx.close();
         };
 
@@ -319,7 +348,7 @@ async function processRemoveBackgroundNoise() {
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                 const progress = Math.floor((video.currentTime / video.duration) * 100);
                 progressBar.style.width = `${progress}%`;
-                statusText.textContent = `Aislando voz y eliminando ruido: ${progress}%`;
+                statusText.textContent = `Procesando audio e islote de voz: ${progress}%`;
                 requestAnimationFrame(renderFrame);
             } else if (video.ended) {
                 mediaRecorder.stop();
@@ -330,20 +359,18 @@ async function processRemoveBackgroundNoise() {
 
     } catch (err) {
         console.error(err);
-        showToast('❌ Ocurrió un error al filtrar el audio.');
+        showToast('❌ Ocurrió un problema al procesar el audio.');
         progressContainer.style.display = 'none';
     }
 }
 
-/* -------------------------------------------------------------------
-   2. COMPRESOR DE VIDEO REAL
-------------------------------------------------------------------- */
+/* 2. COMPRESOR DE VIDEO REAL */
 async function processRealVideoCompression() {
     if (!checkUserAuth()) return;
 
     const input = document.getElementById('compressorInput');
     if (!input.files.length) {
-        showToast('⚠️ Selecciona un archivo de video primero.');
+        showToast('⚠️ Carga un archivo de video primero.');
         return;
     }
 
@@ -357,7 +384,7 @@ async function processRealVideoCompression() {
     downloadArea.innerHTML = '';
     progressContainer.style.display = 'block';
     progressBar.style.width = '0%';
-    statusText.textContent = "Analizando bitrate...";
+    statusText.textContent = "Analizando video...";
 
     try {
         const video = await createVideoElement(file);
@@ -404,12 +431,12 @@ async function processRealVideoCompression() {
         mediaRecorder.onstop = () => {
             const compressedBlob = new Blob(chunks, { type: options.mimeType || 'video/webm' });
             progressBar.style.width = '100%';
-            statusText.textContent = "¡Compresión de video completada!";
+            statusText.textContent = "¡Compresión terminada!";
             setTimeout(() => { progressContainer.style.display = 'none'; }, 500);
 
             const newFileName = file.name.substring(0, file.name.lastIndexOf('.')) + '_comprimido.webm';
             createDownloadButton('compressorDownloadArea', compressedBlob, newFileName, file.size);
-            showToast('✅ Video comprimido exitosamente.');
+            showToast('✅ Video comprimido correctamente.');
         };
 
         mediaRecorder.start();
@@ -421,7 +448,7 @@ async function processRealVideoCompression() {
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                 const progress = Math.floor((video.currentTime / video.duration) * 100);
                 progressBar.style.width = `${progress}%`;
-                statusText.textContent = `Comprimiendo video + audio: ${progress}%`;
+                statusText.textContent = `Recodificando video: ${progress}%`;
                 requestAnimationFrame(renderFrame);
             } else if (video.ended) {
                 mediaRecorder.stop();
@@ -462,6 +489,6 @@ function processConversion() {
         const newName = file.name.substring(0, file.name.lastIndexOf('.')) + `_convertido.${target}`;
         const blob = new Blob([file], { type: 'application/octet-stream' });
         createDownloadButton('converterDownloadArea', blob, newName);
-        showToast('✅ Documento procesado correctamente.');
+        showToast('✅ Archivo procesado correctamente.');
     }, 500);
 }
