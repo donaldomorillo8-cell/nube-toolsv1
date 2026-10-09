@@ -38,10 +38,10 @@
         <section id="about" class="tab-content active-content">
             <div class="hero-section">
                 <div class="hero-content">
-                    <div class="badge"><i class="fa-solid fa-bolt"></i> PROCESAMIENTO NATIVO HARDWARE</div>
+                    <div class="badge"><i class="fa-solid fa-bolt"></i> PROCESAMIENTO NATIVO CON CONTROL DE ACCESO</div>
                     <h1>REDUCCIÓN REAL DE PESO Y SILENCIADOR DE VIDEO</h1>
                     <p class="description">
-                        NEXUS.AI utiliza re-codificación mediante Canvas y MediaRecorder a bajo bitrate. Analiza el video completo y reduce el tamaño de archivo de forma directa en el navegador.
+                        NEXUS.AI utiliza algoritmos de recodificación de bajo bitrate manteniendo la sincronización de audio/video completa. Inicia sesión para acceder a las herramientas.
                     </p>
                     <div class="hero-actions">
                         <button class="btn btn-primary btn-glow" onclick="switchView('compressor', event)">Ir al Compresor <i class="fa-solid fa-arrow-right"></i></button>
@@ -53,25 +53,25 @@
                         <span class="dot red"></span>
                         <span class="dot yellow"></span>
                         <span class="dot green"></span>
-                        <span class="title"><i class="fa-solid fa-microchip"></i> MOTOR_CANVAS_STREAM v2.0</span>
+                        <span class="title"><i class="fa-solid fa-shield-halved"></i> ESTADO_ACCESO_SISTEMA</span>
                     </div>
                     <div class="card-body">
                         <div class="status-item">
-                            <span>Compresión con Bitrate Controlado</span>
-                            <span class="status active">ACTIVO</span>
+                            <span>Autenticación OAuth Google</span>
+                            <span class="status active">PROTEGIDO</span>
                         </div>
                         <div class="status-item">
-                            <span>Extracción de Audio Completa</span>
-                            <span class="status active">OPTIMIZADO</span>
-                        </div>
-                        <div class="status-item">
-                            <span>Conversor de Documentos</span>
+                            <span>Compresión con Audio Sincronizado</span>
                             <span class="status active">LISTO</span>
                         </div>
+                        <div class="status-item">
+                            <span>Remoción Total de Sonido</span>
+                            <span class="status active">ACTIVO</span>
+                        </div>
                         <div class="code-preview">
-                            <code>> CanvasStream.capture();</code><br>
-                            <code>> Re-encoding video stream at target bitrate...</code><br>
-                            <code>> Ready for compression.</code>
+                            <code>> System.checkUserAuthSession();</code><br>
+                            <code>> Requiring active token for processing tasks...</code><br>
+                            <code>> Security node active.</code>
                         </div>
                     </div>
                 </div>
@@ -81,8 +81,8 @@
         <!-- Pestaña 2: Conversor -->
         <section id="converter" class="tab-content">
             <div class="tool-card">
-                <h2><i class="fa-solid fa-file-export"></i> Conversor de Archivos de Texto / Datos</h2>
-                <p>Carga un archivo para cambiar su extensión o estructura de datos básica.</p>
+                <h2><i class="fa-solid fa-file-export"></i> Conversor de Archivos / Documentos</h2>
+                <p>Carga un archivo para cambiar su formato o estructura de datos.</p>
                 
                 <div class="drop-zone" id="converterDropZone">
                     <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
@@ -91,7 +91,7 @@
                 </div>
 
                 <div class="tool-controls">
-                    <label for="targetFormat">Formato de SalidaTarget:</label>
+                    <label for="targetFormat">Formato de Salida:</label>
                     <select id="targetFormat" class="custom-select">
                         <option value="txt">Texto Plano (.txt)</option>
                         <option value="doc">Documento Word (.doc)</option>
@@ -109,8 +109,8 @@
         <!-- Pestaña 3: Compresor Real -->
         <section id="compressor" class="tab-content">
             <div class="tool-card">
-                <h2><i class="fa-solid fa-file-video"></i> Compresor Real de Video (Reducción Violenta de Pesos)</h2>
-                <p>El sistema analiza el video y lo recodifica fotograma a fotograma bajando el bitrate y la resolución para forzar una reducción real en MB.</p>
+                <h2><i class="fa-solid fa-file-video"></i> Compresor Real de Video (Conserva Audio y Duración)</h2>
+                <p>Recodifica el video forzando la reducción de MB en el archivo completo y manteniendo su sonido original.</p>
                 
                 <div class="drop-zone" id="compressorDropZone">
                     <i class="fa-solid fa-film upload-icon"></i>
@@ -119,7 +119,7 @@
                 </div>
 
                 <div class="tool-controls">
-                    <label for="compressionLevel">Nivel de Compresión (Forzado de Bitrate):</label>
+                    <label for="compressionLevel">Nivel de Compresión:</label>
                     <select id="compressionLevel" class="custom-select">
                         <option value="baja">Baja calidad (Reducción Máxima - Archivos minúsculos)</option>
                         <option value="media" selected>Media calidad (Reducción del 50% - 70%)</option>
@@ -140,7 +140,7 @@
         <section id="vocal-remover" class="tab-content">
             <div class="tool-card">
                 <h2><i class="fa-solid fa-volume-xmark"></i> Eliminar / Silenciar Audio Completo del Video</h2>
-                <p>Elimina el 100% de la pista de sonido o música de fondo volviendo a procesar solo el flujo de video.</p>
+                <p>Remueve el 100% de la pista de sonido o música de fondo dejando un video totalmente silenciado.</p>
                 
                 <div class="drop-zone" id="vocalDropZone">
                     <i class="fa-solid fa-sliders upload-icon"></i>
@@ -160,9 +160,6 @@
             </div>
         </section>
     </main>
-
-    <!-- Elemento oculto para procesamiento de renderizado -->
-    <div id="videoContainer" style="display: none;"></div>
 
     <!-- Modal para Autenticación -->
     <div class="modal-overlay" id="authModal">
