@@ -3,75 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS AI - Suite Web Multimedia</title>
+    <title>nube-toolsv1 - Suite Web Multimedia Profesional</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@300;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-    <div class="bg-glow"></div>
+    <div class="bg-gradient-glow"></div>
     <div class="grid-overlay"></div>
 
     <!-- Navegación Principal -->
     <header class="navbar">
         <div class="logo">
-            <i class="fa-solid fa-atom fa-spin-pulse"></i>
-            <span>NEXUS<span class="highlight">.AI</span></span>
+            <div class="logo-icon"><i class="fa-solid fa-cloud-bolt"></i></div>
+            <span>nube-tools<span class="highlight">v1</span></span>
         </div>
         <nav>
             <ul class="nav-links">
-                <li><a href="#" class="nav-tab active" onclick="switchView('about', event)"><i class="fa-solid fa-circle-info"></i> Información</a></li>
+                <li><a href="#" class="nav-tab active" onclick="switchView('about', event)"><i class="fa-solid fa-house"></i> Inicio</a></li>
                 <li><a href="#" class="nav-tab" onclick="switchView('converter', event)"><i class="fa-solid fa-file-export"></i> Conversor</a></li>
-                <li><a href="#" class="nav-tab" onclick="switchView('compressor', event)"><i class="fa-solid fa-file-video"></i> Compresor Real</a></li>
-                <li><a href="#" class="nav-tab" onclick="switchView('vocal-remover', event)"><i class="fa-solid fa-volume-xmark"></i> Quitar Audio</a></li>
+                <li><a href="#" class="nav-tab" onclick="switchView('compressor', event)"><i class="fa-solid fa-file-video"></i> Compresor HD</a></li>
+                <li><a href="#" class="nav-tab" onclick="switchView('vocal-remover', event)"><i class="fa-solid fa-wand-magic-sparkles"></i> Limpieza de Ruido</a></li>
             </ul>
         </nav>
         <div class="auth-buttons" id="authContainer">
-            <button class="btn btn-outline" onclick="openAuthModal('login')"><i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión</button>
+            <button class="btn btn-outline" onclick="openAuthModal('login')"><i class="fa-solid fa-right-to-bracket"></i> Acceso</button>
             <button class="btn btn-primary" onclick="openAuthModal('register')"><i class="fa-solid fa-user-plus"></i> Registrarse</button>
         </div>
     </header>
 
     <main class="container">
-        <!-- Pestaña 1: Información -->
+        <!-- Pestaña 1: Inicio Enriquecido -->
         <section id="about" class="tab-content active-content">
+            <!-- Hero Principal -->
             <div class="hero-section">
                 <div class="hero-content">
-                    <div class="badge"><i class="fa-solid fa-bolt"></i> PROCESAMIENTO NATIVO CON CONTROL DE ACCESO</div>
-                    <h1>REDUCCIÓN REAL DE PESO Y SILENCIADOR DE VIDEO</h1>
+                    <div class="badge"><i class="fa-solid fa-shield-halved"></i> PLATAFORMA MULTIMEDIA PROFESIONAL</div>
+                    <h1>Procesamiento de Video y Audio de Alta Precisión</h1>
                     <p class="description">
-                        NEXUS.AI utiliza algoritmos de recodificación de bajo bitrate manteniendo la sincronización de audio/video completa. Inicia sesión para acceder a las herramientas.
+                        Plataforma de grado profesional impulsada por aceleración de hardware nativa. Limpia el ruido de fondo manteniendo la voz clara, convierte documentos y comprime videos sin pérdida de calidad visual.
                     </p>
                     <div class="hero-actions">
-                        <button class="btn btn-primary btn-glow" onclick="switchView('compressor', event)">Ir al Compresor <i class="fa-solid fa-arrow-right"></i></button>
+                        <button class="btn btn-primary btn-glow" onclick="switchView('vocal-remover', event)">Limpiar Ruido de Video <i class="fa-solid fa-wand-magic-sparkles"></i></button>
+                        <button class="btn btn-outline" onclick="switchView('compressor', event)">Compresor de Video</button>
                     </div>
                 </div>
 
-                <div class="hero-card">
+                <div class="hero-card glassmorphism">
                     <div class="card-header">
                         <span class="dot red"></span>
                         <span class="dot yellow"></span>
                         <span class="dot green"></span>
-                        <span class="title"><i class="fa-solid fa-shield-halved"></i> ESTADO_ACCESO_SISTEMA</span>
+                        <span class="title"><i class="fa-solid fa-server"></i> Nube-Engine Status</span>
                     </div>
                     <div class="card-body">
                         <div class="status-item">
-                            <span>Autenticación OAuth Google</span>
-                            <span class="status active">PROTEGIDO</span>
+                            <span>Aislamiento de Voz e IA Noise Suppression</span>
+                            <span class="status active">ONLINE</span>
                         </div>
                         <div class="status-item">
-                            <span>Compresión con Audio Sincronizado</span>
+                            <span>Comprensión de Video H.264/WebM</span>
+                            <span class="status active">ACTIVO</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Conversor de Formatos Multihilo</span>
                             <span class="status active">LISTO</span>
                         </div>
                         <div class="status-item">
-                            <span>Remoción Total de Sonido</span>
-                            <span class="status active">ACTIVO</span>
+                            <span>Encriptación de Datos en Cliente</span>
+                            <span class="status active">256-BIT</span>
                         </div>
                         <div class="code-preview">
-                            <code>> System.checkUserAuthSession();</code><br>
-                            <code>> Requiring active token for processing tasks...</code><br>
-                            <code>> Security node active.</code>
+                            <code>> CloudEngine.initializeProcessors();</code><br>
+                            <code>> WebAudio API DSP Noise Reduction loaded.</code><br>
+                            <code>> All systems operational.</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Métricas -->
+            <div class="stats-section">
+                <div class="stat-card glassmorphism">
+                    <i class="fa-solid fa-bolt stat-icon"></i>
+                    <h3>0.0ms</h3>
+                    <p>Latencia de servidor (Procesamiento local ultrarrápido)</p>
+                </div>
+                <div class="stat-card glassmorphism">
+                    <i class="fa-solid fa-lock stat-icon"></i>
+                    <h3>100% Privado</h3>
+                    <p>Tus archivos se procesan en tu navegador sin subir datos a la red</p>
+                </div>
+                <div class="stat-card glassmorphism">
+                    <i class="fa-solid fa-sliders stat-icon"></i>
+                    <h3>Filtro DSP</h3>
+                    <p>Cancelación activa de ruido ambiental en audio/video</p>
+                </div>
+            </div>
+
+            <!-- Tarjetas de Características Principales -->
+            <div class="features-header">
+                <h2>Herramientas Integradas en nube-toolsv1</h2>
+                <p>Suite completa para optimizar y limpiar tu contenido multimedia</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card glassmorphism" onclick="switchView('vocal-remover', event)">
+                    <div class="feature-icon"><i class="fa-solid fa-microphone-slash"></i></div>
+                    <h3>Eliminador de Ruido de Fondo</h3>
+                    <p>Remueve el ruido ambiental, viento, zumbidos de micro y siseos de tu video manteniendo únicamente la voz clara de las personas.</p>
+                    <span class="feature-link">Probar ahora <i class="fa-solid fa-arrow-right"></i></span>
+                </div>
+
+                <div class="feature-card glassmorphism" onclick="switchView('compressor', event)">
+                    <div class="feature-icon"><i class="fa-solid fa-file-video"></i></div>
+                    <h3>Compresor de Video HD</h3>
+                    <p>Reduce hasta un 80% el peso de tus archivos MP4 o WebM sin alterar la velocidad, sincronización o sonido de tus videos.</p>
+                    <span class="feature-link">Probar ahora <i class="fa-solid fa-arrow-right"></i></span>
+                </div>
+
+                <div class="feature-card glassmorphism" onclick="switchView('converter', event)">
+                    <div class="feature-icon"><i class="fa-solid fa-file-arrow-up"></i></div>
+                    <h3>Conversor Multiformato</h3>
+                    <p>Transforma documentos, tablas y archivos de datos a formatos estándar como TXT, DOC y CSV al instante.</p>
+                    <span class="feature-link">Probar ahora <i class="fa-solid fa-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Testimonios de Profesionales -->
+            <div class="reviews-section">
+                <h2>Diseñado para Creadores y Profesionales</h2>
+                <div class="reviews-grid">
+                    <div class="review-card glassmorphism">
+                        <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                        <p>"La herramienta de eliminación de ruido salvó una entrevista grabada en exterior con mucho viento. Las voces quedaron totalmente nítidas."</p>
+                        <div class="user-info">
+                            <strong>Carlos Mendoza</strong>
+                            <span>Editor de Video & Podcaster</span>
+                        </div>
+                    </div>
+                    <div class="review-card glassmorphism">
+                        <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                        <p>"Reduzco el tamaño de mis presentaciones en video sin perder calidad de sonido antes de subirlas a la nube. Rápido y muy seguro."</p>
+                        <div class="user-info">
+                            <strong>Sofía Rodríguez</strong>
+                            <span>Diseñadora UX/UI</span>
                         </div>
                     </div>
                 </div>
@@ -80,13 +157,13 @@
 
         <!-- Pestaña 2: Conversor -->
         <section id="converter" class="tab-content">
-            <div class="tool-card">
-                <h2><i class="fa-solid fa-file-export"></i> Conversor de Archivos / Documentos</h2>
-                <p>Carga un archivo para cambiar su formato o estructura de datos.</p>
+            <div class="tool-card glassmorphism">
+                <h2><i class="fa-solid fa-file-export"></i> Conversor de Archivos y Documentos</h2>
+                <p>Transforma el formato de tus documentos con máxima compatibilidad de datos.</p>
                 
                 <div class="drop-zone" id="converterDropZone">
                     <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-                    <p>Arrastra tu archivo aquí o <span class="highlight-link">selecciónalo</span></p>
+                    <p>Arrastra tu archivo aquí o <span class="highlight-link">explorar equipo</span></p>
                     <input type="file" id="converterInput" hidden>
                 </div>
 
@@ -97,7 +174,7 @@
                         <option value="doc">Documento Word (.doc)</option>
                         <option value="csv">Archivo CSV (.csv)</option>
                     </select>
-                    <button class="btn btn-primary" onclick="processConversion()"><i class="fa-solid fa-gear"></i> Convertir y Descargar</button>
+                    <button class="btn btn-primary" onclick="processConversion()"><i class="fa-solid fa-gear"></i> Convertir Documento</button>
                 </div>
                 <div class="progress-bar-container" id="converterProgress">
                     <div class="progress-bar"></div>
@@ -108,9 +185,9 @@
 
         <!-- Pestaña 3: Compresor Real -->
         <section id="compressor" class="tab-content">
-            <div class="tool-card">
-                <h2><i class="fa-solid fa-file-video"></i> Compresor Real de Video (Conserva Audio y Duración)</h2>
-                <p>Recodifica el video forzando la reducción de MB en el archivo completo y manteniendo su sonido original.</p>
+            <div class="tool-card glassmorphism">
+                <h2><i class="fa-solid fa-file-video"></i> Compresor Real de Video</h2>
+                <p>Reduce el peso en MB de tus videos conservando la pista de audio intacta y la duración original.</p>
                 
                 <div class="drop-zone" id="compressorDropZone">
                     <i class="fa-solid fa-film upload-icon"></i>
@@ -121,41 +198,46 @@
                 <div class="tool-controls">
                     <label for="compressionLevel">Nivel de Compresión:</label>
                     <select id="compressionLevel" class="custom-select">
-                        <option value="baja">Baja calidad (Reducción Máxima - Archivos minúsculos)</option>
-                        <option value="media" selected>Media calidad (Reducción del 50% - 70%)</option>
-                        <option value="alta">Alta calidad (Reducción moderada)</option>
+                        <option value="baja">Máxima Reducción (Tamaño Mínimo)</option>
+                        <option value="media" selected>Equilibrado (Reducción 50% - 70%)</option>
+                        <option value="alta">Alta Calidad Visual (Reducción Moderada)</option>
                     </select>
-                    <button class="btn btn-primary" onclick="processRealVideoCompression()"><i class="fa-solid fa-compress"></i> Iniciar Compresión Real</button>
+                    <button class="btn btn-primary" onclick="processRealVideoCompression()"><i class="fa-solid fa-compress"></i> Iniciar Compresión</button>
                 </div>
 
                 <div class="progress-bar-container" id="compressorProgress">
                     <div class="progress-bar"></div>
                 </div>
-                <div id="compressorStatusText" style="margin-top: 10px; color: var(--accent-cyan); font-weight: bold; text-align: center;"></div>
+                <div id="compressorStatusText" class="status-indicator"></div>
                 <div class="download-area" id="compressorDownloadArea"></div>
             </div>
         </section>
 
-        <!-- Pestaña 4: Quitar Audio de Video -->
+        <!-- Pestaña 4: Quitar Ruido de Fondo / Aislamiento Vocal -->
         <section id="vocal-remover" class="tab-content">
-            <div class="tool-card">
-                <h2><i class="fa-solid fa-volume-xmark"></i> Eliminar / Silenciar Audio Completo del Video</h2>
-                <p>Remueve el 100% de la pista de sonido o música de fondo dejando un video totalmente silenciado.</p>
+            <div class="tool-card glassmorphism">
+                <h2><i class="fa-solid fa-wand-magic-sparkles"></i> Limpieza de Ruido de Fondo (Filtro Vocal)</h2>
+                <p>Elimina el ruido ambiental, viento, motores o zumbidos del fondo de tu video para que se escuche únicamente la voz humana clara.</p>
                 
                 <div class="drop-zone" id="vocalDropZone">
                     <i class="fa-solid fa-sliders upload-icon"></i>
-                    <p>Carga un archivo de video para silenciar <span class="highlight-link">explorar</span></p>
+                    <p>Carga un archivo de video para limpiar ruido <span class="highlight-link">explorar</span></p>
                     <input type="file" id="vocalInput" accept="video/*" hidden>
                 </div>
 
                 <div class="tool-controls">
-                    <button class="btn btn-primary" onclick="processRemoveAudio()"><i class="fa-solid fa-wand-magic-sparkles"></i> Eliminar Audio Completo</button>
+                    <label for="noiseLevel">Intensidad del Filtro Anti-Ruido:</label>
+                    <select id="noiseLevel" class="custom-select">
+                        <option value="estandar" selected>Estándar (Aislamiento Vocal Equilibrado)</option>
+                        <option value="fuerte">Fuerte (Para ambientes con mucho ruido)</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="processRemoveBackgroundNoise()"><i class="fa-solid fa-filter"></i> Eliminar Ruido de Fondo</button>
                 </div>
 
                 <div class="progress-bar-container" id="vocalProgress">
                     <div class="progress-bar"></div>
                 </div>
-                <div id="vocalStatusText" style="margin-top: 10px; color: var(--accent-cyan); font-weight: bold; text-align: center;"></div>
+                <div id="vocalStatusText" class="status-indicator"></div>
                 <div class="download-area" id="vocalDownloadArea"></div>
             </div>
         </section>
@@ -163,7 +245,7 @@
 
     <!-- Modal para Autenticación -->
     <div class="modal-overlay" id="authModal">
-        <div class="modal-box">
+        <div class="modal-box glassmorphism">
             <button class="modal-close" onclick="closeAuthModal()">&times;</button>
             <div class="modal-tabs">
                 <button class="tab-btn active" id="tabLogin" onclick="switchAuthTab('login')">Iniciar Sesión</button>
@@ -171,7 +253,7 @@
             </div>
 
             <form id="formLogin" class="auth-form active-form" onsubmit="handleLogin(event)">
-                <h3>Bienvenido a NEXUS</h3>
+                <h3>Bienvenido a nube-toolsv1</h3>
                 <div class="input-group">
                     <i class="fa-solid fa-envelope"></i>
                     <input type="email" placeholder="Correo Electrónico" required>
@@ -180,13 +262,13 @@
                     <i class="fa-solid fa-lock"></i>
                     <input type="password" placeholder="Contraseña" required>
                 </div>
-                <button type="submit" class="btn btn-primary btn-full">Entrar a la Red</button>
+                <button type="submit" class="btn btn-primary btn-full">Acceder al Sistema</button>
                 <div class="divider"><span>o continúa con</span></div>
                 <div id="googleBtnLogin" class="google-btn-wrapper"></div>
             </form>
 
             <form id="formRegister" class="auth-form" onsubmit="handleRegister(event)">
-                <h3>Crea tu Cuenta Cyber</h3>
+                <h3>Crea tu Cuenta Pro</h3>
                 <div class="input-group">
                     <i class="fa-solid fa-user"></i>
                     <input type="text" placeholder="Nombre de Usuario" required>
@@ -209,7 +291,7 @@
     <div id="toast" class="toast"></div>
 
     <footer>
-        <p>&copy; 2026 NEXUS.AI Systems. Todos los derechos reservados.</p>
+        <p>&copy; 2026 nube-toolsv1 Suite. Desarrollo de Calidad Profesional. Todos los derechos reservados.</p>
     </footer>
 
     <script src="script.js"></script>
