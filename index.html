@@ -3,20 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>nube-toolsv1 - Suite Multimedia Profesional & Premium</title>
+    <title>nube-toolsv1 - Suite Multimedia Profesional & VIP</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <!-- PayPal SDK -->
-    <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD&merchant-id=morilloysaia6@gmail.com"></script>
 </head>
 <body>
     <div class="bg-glow-1"></div>
     <div class="bg-glow-2"></div>
     <div class="grid-overlay"></div>
 
-    <!-- Navegación Principal -->
     <header class="navbar-wrapper">
         <div class="navbar glassmorphism">
             <div class="logo">
@@ -41,18 +39,18 @@
     </header>
 
     <main class="container">
-        <!-- Pestaña 1: Inicio -->
+        <!-- Inicio -->
         <section id="about" class="tab-content active-content">
             <div class="hero-section">
                 <div class="hero-content">
                     <div class="badge"><i class="fa-solid fa-sparkles"></i> SUITE MULTIMEDIA NEXT-GEN</div>
                     <h1>Potencia y Precisión en Procesamiento de Media</h1>
                     <p class="description">
-                        Plataforma web de nivel profesional. Elimina fondos de imágenes y videos, aísla voces al 100%, comprime en calidad 4K/Full HD y convierte cualquier archivo.
+                        Base de datos activa con sincronización de perfiles, conversor universal (PDF gratis, Excel, PowerPoint), compresor 4K y eliminación de fondos real.
                     </p>
                     <div class="hero-actions">
-                        <button class="btn btn-primary btn-glow" onclick="switchView('pricing', event)">Obtener Premium <i class="fa-solid fa-crown"></i></button>
-                        <button class="btn btn-outline" onclick="switchView('bg-remover', event)">Probar Quitar Fondo</button>
+                        <button class="btn btn-primary btn-glow" onclick="switchView('pricing', event)">Ver Planes VIP <i class="fa-solid fa-crown"></i></button>
+                        <button class="btn btn-outline" onclick="switchView('bg-remover', event)">Quitar Fondo</button>
                     </div>
                 </div>
 
@@ -61,7 +59,7 @@
                         <span class="dot red"></span>
                         <span class="dot yellow"></span>
                         <span class="dot green"></span>
-                        <span class="title"><i class="fa-solid fa-microchip"></i> NUBE-ENGINE V2.0 PRO</span>
+                        <span class="title"><i class="fa-solid fa-database"></i> BASE DE DATOS SQL / LOCALSTORAGE</span>
                     </div>
                     <div class="card-body">
                         <div class="status-item">
@@ -69,50 +67,23 @@
                             <span class="status active" id="heroPlanBadge">GRATUITO</span>
                         </div>
                         <div class="status-item">
-                            <span>Compresión 4K / Full HD</span>
-                            <span class="status active">PREMIUM READY</span>
+                            <span>Vencimiento de Suscripción</span>
+                            <span class="status active" id="heroExpireDate">N/A</span>
                         </div>
                         <div class="status-item">
-                            <span>Removedor de Fondo Video & Foto</span>
-                            <span class="status active">ACTIVO</span>
-                        </div>
-                        <div class="status-item">
-                            <span>Aislamiento Vocal 100% DSP</span>
-                            <span class="status active">OPTIMIZADO</span>
+                            <span>Pasarela PayPal Directa</span>
+                            <span class="status active">morilloysaia6@gmail.com</span>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="features-grid">
-                <div class="feature-card glassmorphism" onclick="switchView('bg-remover', event)">
-                    <div class="feature-icon"><i class="fa-solid fa-image"></i></div>
-                    <h3>Eliminador de Fondo</h3>
-                    <p>Remueve fondos de imágenes en calidad normal o 4K VIP, y elimina fondos de videos en planes Premium.</p>
-                    <span class="feature-link">Probar herramienta <i class="fa-solid fa-arrow-right"></i></span>
-                </div>
-
-                <div class="feature-card glassmorphism" onclick="switchView('vocal-remover', event)">
-                    <div class="feature-icon"><i class="fa-solid fa-microphone-slash"></i></div>
-                    <h3>Filtro de Ruido & Voz 100%</h3>
-                    <p>Suprime por completo el fondo no deseado dejando únicamente el audio vocal claro de las personas.</p>
-                    <span class="feature-link">Probar herramienta <i class="fa-solid fa-arrow-right"></i></span>
-                </div>
-
-                <div class="feature-card glassmorphism" onclick="switchView('compressor', event)">
-                    <div class="feature-icon"><i class="fa-solid fa-file-video"></i></div>
-                    <h3>Compresor HD / 4K</h3>
-                    <p>Reduce drásticamente el peso real hasta un 100% optimizado sin perder resolución Full HD/4K.</p>
-                    <span class="feature-link">Probar herramienta <i class="fa-solid fa-arrow-right"></i></span>
-                </div>
-            </div>
         </section>
 
-        <!-- Pestaña 2: Conversor -->
+        <!-- Conversor -->
         <section id="converter" class="tab-content">
             <div class="tool-card glassmorphism">
-                <h2><i class="fa-solid fa-file-export"></i> Conversor Universal de Archivos</h2>
-                <p>Convierte documentos, audios e imágenes. Los usuarios Premium desbloquean la conversión total de formatos.</p>
+                <h2><i class="fa-solid fa-file-export"></i> Conversor Universal (PDF Gratis + Excel + PowerPoint)</h2>
+                <p>Convierte documentos al instante. El formato PDF es totalmente gratuito para todos los usuarios.</p>
                 
                 <div class="drop-zone" id="converterDropZone">
                     <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
@@ -123,15 +94,14 @@
                 <div class="tool-controls">
                     <label for="targetFormat">Formato Objetivo:</label>
                     <select id="targetFormat" class="custom-select">
-                        <!-- Opciones Normales -->
+                        <option value="pdf">Documento PDF (.pdf) - Gratis</option>
                         <option value="txt">Texto Plano (.txt)</option>
                         <option value="doc">Documento Word (.doc)</option>
                         <option value="csv">Archivo CSV (.csv)</option>
-                        <!-- Opciones Premium -->
-                        <option value="mp4" class="premium-option">⭐ MP4 Video (Premium)</option>
-                        <option value="mp3" class="premium-option">⭐ MP3 Audio (Premium)</option>
-                        <option value="pdf" class="premium-option">⭐ Documento PDF (Premium)</option>
-                        <option value="webp" class="premium-option">⭐ Imagen WEBP (Premium)</option>
+                        <option value="xlsx">⭐ Microsoft Excel (.xlsx - Premium)</option>
+                        <option value="pptx">⭐ Microsoft PowerPoint (.pptx - Premium)</option>
+                        <option value="mp4">⭐ MP4 Video (Premium)</option>
+                        <option value="mp3">⭐ MP3 Audio (Premium)</option>
                     </select>
                     <button class="btn btn-primary" onclick="processConversion()"><i class="fa-solid fa-gear"></i> Convertir y Descargar</button>
                 </div>
@@ -142,11 +112,11 @@
             </div>
         </section>
 
-        <!-- Pestaña 3: Compresor -->
+        <!-- Compresor -->
         <section id="compressor" class="tab-content">
             <div class="tool-card glassmorphism">
                 <h2><i class="fa-solid fa-file-video"></i> Compresor Real de Video (Full HD & 4K)</h2>
-                <p>Reducción del peso real del archivo manteniendo resolución Full HD o 4K en cuentas Premium.</p>
+                <p>Reduce el peso real hasta un 100% manteniendo calidad impecable.</p>
                 
                 <div class="drop-zone" id="compressorDropZone">
                     <i class="fa-solid fa-film upload-icon"></i>
@@ -157,7 +127,6 @@
                 <div class="tool-controls">
                     <label for="compressionLevel">Modo de Compresión:</label>
                     <select id="compressionLevel" class="custom-select">
-                        <option value="baja">Estándar Gratis (Reducción 40%)</option>
                         <option value="media" selected>Equilibrado Gratis (Reducción 60%)</option>
                         <option value="fhd_premium">⭐ Full HD Ultra-Comprimido 1080p (Premium)</option>
                         <option value="4k_premium">⭐ 4K Máxima Reducción Real (Premium)</option>
@@ -173,26 +142,26 @@
             </div>
         </section>
 
-        <!-- Pestaña 4: Eliminador de Fondo (NUEVA) -->
+        <!-- Quitar Fondo -->
         <section id="bg-remover" class="tab-content">
             <div class="tool-card glassmorphism">
-                <h2><i class="fa-solid fa-image"></i> Eliminador de Fondo (Fotos y Videos)</h2>
-                <p>Remueve el fondo de tus imágenes gratis en calidad media. Activa Premium para fotos en 4K y eliminación de fondo en videos.</p>
+                <h2><i class="fa-solid fa-image"></i> Eliminador de Fondo Real (Fotos y Videos)</h2>
+                <p>Remueve el fondo de tus imágenes en calidad media gratis, o activa Premium para fotos en 4K y eliminación en videos.</p>
                 
                 <div class="drop-zone" id="bgDropZone">
                     <i class="fa-solid fa-wand-magic upload-icon"></i>
-                    <p>Carga una imagen o video para remover el fondo <span class="highlight-link">explorar</span></p>
+                    <p>Carga una imagen o video <span class="highlight-link">explorar</span></p>
                     <input type="file" id="bgInput" accept="image/*,video/*" hidden>
                 </div>
 
                 <div class="tool-controls">
-                    <label for="bgQuality">Calidad y Modo de Salida:</label>
+                    <label for="bgQuality">Modo de Procesamiento:</label>
                     <select id="bgQuality" class="custom-select">
                         <option value="normal" selected>Imagen Calidad Media (Gratis)</option>
-                        <option value="img_4k">⭐ Imagen Ultra HD 4K (Premium)</option>
-                        <option value="video_premium">⭐ Video Transparente / Fondo Eliminado (Premium)</option>
+                        <option value="img_4k">⭐ Imagen Ultra HD 4K con IA (Premium)</option>
+                        <option value="video_premium">⭐ Video Transparente sin Fondo (Premium)</option>
                     </select>
-                    <button class="btn btn-primary" onclick="processRemoveBackground()"><i class="fa-solid fa-scissors"></i> Remover Fondo</button>
+                    <button class="btn btn-primary" onclick="processRemoveBackground()"><i class="fa-solid fa-scissors"></i> Remover Fondo Real</button>
                 </div>
 
                 <div class="progress-bar-container" id="bgProgress">
@@ -203,11 +172,11 @@
             </div>
         </section>
 
-        <!-- Pestaña 5: Filtro de Ruido y Voz -->
+        <!-- Filtro Voz -->
         <section id="vocal-remover" class="tab-content">
             <div class="tool-card glassmorphism">
                 <h2><i class="fa-solid fa-wand-magic-sparkles"></i> Reductor de Ruido de Fondo (100% Aislamiento Vocal)</h2>
-                <p>Elimina al 100% el volumen de fondo en modo Premium para conservar de forma nítida únicamente las voces de las personas.</p>
+                <p>Elimina al 100% el volumen de fondo para conservar únicamente las voces de las personas.</p>
                 
                 <div class="drop-zone" id="vocalDropZone">
                     <i class="fa-solid fa-sliders upload-icon"></i>
@@ -216,13 +185,12 @@
                 </div>
 
                 <div class="tool-controls">
-                    <label for="noiseLevel">Modo de Aislamiento DSP:</label>
+                    <label for="noiseLevel">Intensidad DSP:</label>
                     <select id="noiseLevel" class="custom-select">
                         <option value="estandar" selected>Reducción Estándar (Gratis)</option>
-                        <option value="fuerte">Reducción Fuerte (Gratis)</option>
                         <option value="vocal_100">⭐ 100% Cancelación de Fondo - Solo Voces (Premium)</option>
                     </select>
-                    <button class="btn btn-primary" onclick="processRemoveBackgroundNoise()"><i class="fa-solid fa-filter"></i> Eliminar Ruido de Fondo</button>
+                    <button class="btn btn-primary" onclick="processRemoveBackgroundNoise()"><i class="fa-solid fa-filter"></i> Aislar Voces</button>
                 </div>
 
                 <div class="progress-bar-container" id="vocalProgress">
@@ -233,63 +201,62 @@
             </div>
         </section>
 
-        <!-- Pestaña 6: Planes VIP & Pagos (NUEVA) -->
+        <!-- Planes VIP -->
         <section id="pricing" class="tab-content">
             <div class="pricing-header">
-                <h2>Elige tu Plan Premium</h2>
-                <p>Desbloquea procesamiento 4K, conversión ilimitada y eliminación de fondos en video.</p>
+                <h2>Planes Temporales VIP</h2>
+                <p>Elige la duración de tu suscripción con pagos directos a <strong>morilloysaia6@gmail.com</strong></p>
+            </div>
+
+            <div class="duration-selector">
+                <button class="btn btn-outline active-duration" onclick="setPlanDuration('semanal', 1)">Semanal</button>
+                <button class="btn btn-outline" onclick="setPlanDuration('mensual', 4)">Mensual (Popular)</button>
+                <button class="btn btn-outline" onclick="setPlanDuration('anual', 52)">Anual (Ahorro)</button>
             </div>
 
             <div class="pricing-grid">
-                <!-- Plan Básico -->
                 <div class="plan-card glassmorphism">
                     <h3>Básico</h3>
-                    <div class="price">$3 <span>/mes</span></div>
+                    <div class="price" id="priceBasic">$3</div>
                     <ul class="plan-features">
-                        <li><i class="fa-solid fa-check"></i> Todos los formatos de conversión</li>
-                        <li><i class="fa-solid fa-check"></i> Compresión Full HD (1080p)</li>
-                        <li><i class="fa-solid fa-xmark unavailable"></i> Aislamiento Vocal al 100%</li>
+                        <li><i class="fa-solid fa-check"></i> PDF Gratis + Excel/PowerPoint</li>
+                        <li><i class="fa-solid fa-check"></i> Compresión Full HD</li>
                         <li><i class="fa-solid fa-xmark unavailable"></i> Quitar fondo a videos</li>
                     </ul>
-                    <button class="btn btn-outline btn-full" onclick="initCheckout('Plan Básico', '3.00')">Pagar con Tarjeta / PayPal</button>
+                    <button class="btn btn-outline btn-full" onclick="initCheckout('Plan Básico', basePriceBasic)">Seleccionar Plan</button>
                 </div>
 
-                <!-- Plan Mediano -->
                 <div class="plan-card glassmorphism popular">
                     <div class="popular-badge">MÁS POPULAR</div>
                     <h3>Mediano</h3>
-                    <div class="price">$5 <span>/mes</span></div>
+                    <div class="price" id="priceMedium">$5</div>
                     <ul class="plan-features">
                         <li><i class="fa-solid fa-check"></i> Todos los formatos de conversión</li>
                         <li><i class="fa-solid fa-check"></i> Compresión Full HD & 4K</li>
-                        <li><i class="fa-solid fa-check"></i> Aislamiento vocal 100% (Solo Voz)</li>
-                        <li><i class="fa-solid fa-xmark unavailable"></i> Quitar fondo a videos</li>
+                        <li><i class="fa-solid fa-check"></i> Aislamiento vocal 100%</li>
                     </ul>
-                    <button class="btn btn-primary btn-full" onclick="initCheckout('Plan Mediano', '5.00')">Pagar con Tarjeta / PayPal</button>
+                    <button class="btn btn-primary btn-full" onclick="initCheckout('Plan Mediano', basePriceMedium)">Seleccionar Plan</button>
                 </div>
 
-                <!-- Plan Premium Total -->
                 <div class="plan-card glassmorphism VIP">
-                    <div class="vip-badge">COMPLETO VIP</div>
+                    <div class="vip-badge">VIP TOTAL</div>
                     <h3>Premium Total</h3>
-                    <div class="price">$10 <span>/mes</span></div>
+                    <div class="price" id="priceVip">$10</div>
                     <ul class="plan-features">
-                        <li><i class="fa-solid fa-check"></i> Todos los privilegios sin restricciones</li>
+                        <li><i class="fa-solid fa-check"></i> Privilegios ilimitados totales</li>
                         <li><i class="fa-solid fa-check"></i> Fotos en 4K + Quitar fondo a Videos</li>
-                        <li><i class="fa-solid fa-check"></i> Compresión Full HD & 4K máxima</li>
                         <li><i class="fa-solid fa-check"></i> 100% Supresión de ruido de fondo</li>
                     </ul>
-                    <button class="btn btn-primary btn-full btn-glow" onclick="initCheckout('Plan Premium Total', '10.00')">Pagar con Tarjeta / PayPal</button>
+                    <button class="btn btn-primary btn-full btn-glow" onclick="initCheckout('Plan Premium Total', basePriceVip)">Seleccionar Plan</button>
                 </div>
             </div>
 
-            <!-- Modal de Pago Integrado -->
             <div id="paymentModal" class="modal-overlay">
                 <div class="modal-box glassmorphism payment-box">
                     <button class="modal-close" onclick="closePaymentModal()">&times;</button>
-                    <h3>Finalizar Suscripción</h3>
-                    <p id="selectedPlanText" class="payment-plan-title">Plan Seleccionado: Premium</p>
-                    <p class="payment-recipient"><i class="fa-solid fa-shield-check"></i> Pago seguro enviado a: <strong>morilloysaia6@gmail.com</strong></p>
+                    <h3>Pago Directo y Seguro</h3>
+                    <p id="selectedPlanText" class="payment-plan-title">Plan Seleccionado</p>
+                    <p class="payment-recipient"><i class="fa-solid fa-envelope-circle-check"></i> Destinatario oficial: <strong>morilloysaia6@gmail.com</strong></p>
                     
                     <div class="payment-tabs">
                         <button class="btn btn-outline active" onclick="switchPayMethod('paypal')"><i class="fa-brands fa-paypal"></i> PayPal</button>
@@ -320,7 +287,7 @@
                                     <input type="password" placeholder="CVV" maxlength="4" required>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-full"><i class="fa-solid fa-lock"></i> Pagar con Tarjeta</button>
+                            <button type="submit" class="btn btn-primary btn-full"><i class="fa-solid fa-lock"></i> Pagar con Tarjeta (Destino Confirmado)</button>
                         </form>
                     </div>
                 </div>
@@ -328,7 +295,7 @@
         </section>
     </main>
 
-    <!-- Modal para Autenticación -->
+    <!-- Modal Autenticación -->
     <div class="modal-overlay" id="authModal">
         <div class="modal-box glassmorphism">
             <button class="modal-close" onclick="closeAuthModal()">&times;</button>
@@ -338,36 +305,36 @@
             </div>
 
             <form id="formLogin" class="auth-form active-form" onsubmit="handleLogin(event)">
-                <h3>Bienvenido a nube-toolsv1</h3>
+                <h3>Iniciar Sesión en Base de Datos</h3>
                 <div class="input-group">
                     <i class="fa-solid fa-envelope"></i>
-                    <input type="email" placeholder="Correo Electrónico" required>
+                    <input type="email" id="loginEmail" placeholder="Correo Electrónico" required>
                 </div>
                 <div class="input-group">
                     <i class="fa-solid fa-lock"></i>
                     <input type="password" placeholder="Contraseña" required>
                 </div>
-                <button type="submit" class="btn btn-primary btn-full">Entrar a la Plataforma</button>
-                <div class="divider"><span>o continúa con</span></div>
+                <button type="submit" class="btn btn-primary btn-full">Entrar</button>
+                <div class="divider"><span>o con Google</span></div>
                 <div id="googleBtnLogin" class="google-btn-wrapper"></div>
             </form>
 
             <form id="formRegister" class="auth-form" onsubmit="handleRegister(event)">
-                <h3>Crea tu Cuenta Pro</h3>
+                <h3>Registro en Base de Datos SQL</h3>
                 <div class="input-group">
                     <i class="fa-solid fa-user"></i>
                     <input type="text" id="regUsername" placeholder="Nombre de Usuario" required>
                 </div>
                 <div class="input-group">
                     <i class="fa-solid fa-envelope"></i>
-                    <input type="email" placeholder="Correo Electrónico" required>
+                    <input type="email" id="regEmail" placeholder="Correo Electrónico" required>
                 </div>
                 <div class="input-group">
                     <i class="fa-solid fa-lock"></i>
-                    <input type="password" placeholder="Contraseña" required>
+                    <input type="password" id="regPass" placeholder="Contraseña" required>
                 </div>
-                <button type="submit" class="btn btn-primary btn-full">Crear Cuenta</button>
-                <div class="divider"><span>o regístrate con</span></div>
+                <button type="submit" class="btn btn-primary btn-full">Registrar Datos</button>
+                <div class="divider"><span>o con Google</span></div>
                 <div id="googleBtnRegister" class="google-btn-wrapper"></div>
             </form>
         </div>
@@ -376,7 +343,7 @@
     <div id="toast" class="toast"></div>
 
     <footer>
-        <p>&copy; 2026 nube-toolsv1. Plataforma Multimedia Profesional & VIP.</p>
+        <p>&copy; 2026 nube-toolsv1. Base de datos activa y pasarela conectada a morilloysaia6@gmail.com</p>
     </footer>
 
     <script src="script.js"></script>
