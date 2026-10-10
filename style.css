@@ -28,7 +28,6 @@ body {
     overflow-x: hidden;
 }
 
-/* Luces de Fondo */
 .bg-glow-1 {
     position: fixed;
     top: -150px;
@@ -64,7 +63,6 @@ body {
     pointer-events: none;
 }
 
-/* Glassmorphism */
 .glassmorphism {
     background: var(--card-bg);
     backdrop-filter: blur(20px);
@@ -74,7 +72,6 @@ body {
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
-/* Navegación */
 .navbar-wrapper {
     position: sticky;
     top: 15px;
@@ -155,7 +152,6 @@ body {
     background: rgba(245, 158, 11, 0.15) !important;
 }
 
-/* Botones y Estilos de Usuario */
 .auth-buttons {
     display: flex;
     align-items: center;
@@ -267,7 +263,6 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Selector de Duración de Planes */
 .duration-selector {
     display: flex;
     justify-content: center;
@@ -282,7 +277,6 @@ body {
     font-weight: 800;
 }
 
-/* Planes & Precios */
 .pricing-header {
     text-align: center;
     margin-bottom: 30px;
@@ -357,7 +351,6 @@ body {
 .plan-features i { color: #10b981; }
 .plan-features i.unavailable { color: #ef4444; }
 
-/* Hero */
 .hero-section {
     display: grid;
     grid-template-columns: 1.2fr 0.8fr;
@@ -447,7 +440,6 @@ body {
     color: var(--accent-cyan);
 }
 
-/* Métricas & Features */
 .stats-section {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -543,7 +535,6 @@ body {
     gap: 6px;
 }
 
-/* Herramientas */
 .tool-card {
     padding: 35px;
 }
@@ -644,7 +635,6 @@ body {
 
 .download-link-btn:hover { transform: scale(1.03); }
 
-/* Modales y Pasarela */
 .modal-overlay {
     position: fixed;
     top: 0;

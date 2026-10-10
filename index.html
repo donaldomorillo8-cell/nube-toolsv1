@@ -47,10 +47,10 @@
                     <div class="badge"><i class="fa-solid fa-sparkles"></i> SUITE MULTIMEDIA NEXT-GEN</div>
                     <h1>Potencia y Precisión en Procesamiento de Media</h1>
                     <p class="description">
-                        Plataforma web de nivel profesional. Elimina ruido de fondo manteniendo las voces claras, comprime videos sin sacrificar calidad y convierte archivos al instante con máxima privacidad.
+                        Plataforma web económica y de nivel profesional. Cuenta maestra: <strong>donaldoyaaia@gmail.com</strong>. Compresión 4K con controles de vista previa y descarga independientes.
                     </p>
                     <div class="hero-actions">
-                        <button class="btn btn-primary btn-glow" onclick="switchView('vocal-remover', event)">Limpiar Ruido de Video <i class="fa-solid fa-wand-magic-sparkles"></i></button>
+                        <button class="btn btn-primary btn-glow" onclick="switchView('compressor', event)">Compresor 4K <i class="fa-solid fa-file-video"></i></button>
                         <button class="btn btn-outline" onclick="switchView('pricing', event)">Ver Planes VIP <i class="fa-solid fa-crown"></i></button>
                     </div>
                 </div>
@@ -60,28 +60,24 @@
                         <span class="dot red"></span>
                         <span class="dot yellow"></span>
                         <span class="dot green"></span>
-                        <span class="title"><i class="fa-solid fa-microchip"></i> NUBE-ENGINE V1.0</span>
+                        <span class="title"><i class="fa-solid fa-microchip"></i> NUBE-ENGINE MASTER</span>
                     </div>
                     <div class="card-body">
                         <div class="status-item">
-                            <span>Google Auth & Perfil Sync</span>
-                            <span class="status active">CONECTADO</span>
+                            <span>Cuenta Maestra</span>
+                            <span class="status active">donaldoyaaia@gmail.com</span>
                         </div>
                         <div class="status-item">
-                            <span>Aislamiento Vocal DSP</span>
-                            <span class="status active">ACTIVO</span>
-                        </div>
-                        <div class="status-item">
-                            <span>Compresión H.264 / WebM</span>
-                            <span class="status active">OPTIMIZADO</span>
+                            <span>Pasarela PayPal (Receptor)</span>
+                            <span class="status active">morilloysaia6@gmail.com</span>
                         </div>
                         <div class="status-item">
                             <span>Estado de Cuenta VIP</span>
                             <span class="status active" id="heroPlanBadge">GRATUITO</span>
                         </div>
                         <div class="code-preview">
-                            <code>> CloudEngine.syncUserProfile();</code><br>
-                            <code>> Google OAuth 2.0 Identity Token parsed.</code><br>
+                            <code>> MasterAccount.verifyBalance();</code><br>
+                            <code>> FundValidation: Active & Secure.</code><br>
                             <code>> Engine status: 100% Ready.</code>
                         </div>
                     </div>
@@ -98,7 +94,7 @@
                 <div class="stat-card glassmorphism">
                     <i class="fa-solid fa-user-shield stat-icon"></i>
                     <h3>Privacidad Total</h3>
-                    <p>Tus videos nunca se suben a servidores externos</p>
+                    <p>Tus archivos nunca se suben a servidores externos</p>
                 </div>
                 <div class="stat-card glassmorphism">
                     <i class="fa-solid fa-sliders stat-icon"></i>
@@ -131,7 +127,7 @@
                 <div class="feature-card glassmorphism" onclick="switchView('compressor', event)">
                     <div class="feature-icon"><i class="fa-solid fa-file-video"></i></div>
                     <h3>Compresor Real de Video</h3>
-                    <p>Reduce drásticamente los MBs de tus videos sin perder el audio original ni alterar la duración.</p>
+                    <p>Reduce drásticamente los MBs con opciones separadas para previsualizar el resultado y descargarlo.</p>
                     <span class="feature-link">Probar herramienta <i class="fa-solid fa-arrow-right"></i></span>
                 </div>
 
@@ -179,8 +175,8 @@
         <!-- Pestaña 3: Compresor -->
         <section id="compressor" class="tab-content">
             <div class="tool-card glassmorphism">
-                <h2><i class="fa-solid fa-file-video"></i> Compresor Real de Video (Conserva Audio)</h2>
-                <p>Disminuye el tamaño de archivo manteniendo la sincronización perfecta y el sonido intacto.</p>
+                <h2><i class="fa-solid fa-file-video"></i> Compresor Real de Video (Con Vista Previa y Descarga)</h2>
+                <p>Optimizado para evitar lag en resoluciones 4K. Utiliza los botones de previsualización o descarga independiente.</p>
                 
                 <div class="drop-zone" id="compressorDropZone">
                     <i class="fa-solid fa-film upload-icon"></i>
@@ -196,7 +192,7 @@
                         <option value="fhd_premium">⭐ Full HD 1080p Real (Premium)</option>
                         <option value="4k_premium">⭐ 4K Ultra Reducción (Premium)</option>
                     </select>
-                    <button class="btn btn-primary" onclick="processRealVideoCompression()"><i class="fa-solid fa-compress"></i> Iniciar Compresión</button>
+                    <button class="btn btn-primary" onclick="processRealVideoCompression()"><i class="fa-solid fa-compress"></i> Procesar Video</button>
                 </div>
 
                 <div class="progress-bar-container" id="compressorProgress">
@@ -267,18 +263,18 @@
             </div>
         </section>
 
-        <!-- Pestaña 6: Planes VIP Temporales -->
+        <!-- Pestaña 6: Planes VIP Temporales Ahorrativos -->
         <section id="pricing" class="tab-content">
             <div class="pricing-header">
-                <h2>Elige tu Plan VIP Temporal</h2>
-                <p>Desbloquea procesamiento 4K, conversión ilimitada y eliminación de fondos. Los pagos llegan directo a <strong>morilloysaia6@gmail.com</strong></p>
+                <h2>Elige tu Plan VIP Económico</h2>
+                <p>Precios super ahorrativos con validación estricta de fondos. Pagos directos a <strong>morilloysaia6@gmail.com</strong></p>
             </div>
 
             <!-- Selector de Duración -->
             <div class="duration-selector">
-                <button class="btn btn-outline active-duration" onclick="setPlanDuration('semanal', 1)">Semanal</button>
-                <button class="btn btn-outline" onclick="setPlanDuration('mensual', 4)">Mensual (Popular)</button>
-                <button class="btn btn-outline" onclick="setPlanDuration('anual', 52)">Anual (Ahorro)</button>
+                <button class="btn btn-outline active-duration" onclick="setPlanDuration('semanal')">Semanal</button>
+                <button class="btn btn-outline" onclick="setPlanDuration('mensual')">Mensual (Ahorro)</button>
+                <button class="btn btn-outline" onclick="setPlanDuration('anual')">Anual (Super Ahorro)</button>
             </div>
 
             <div class="pricing-grid">
@@ -324,13 +320,13 @@
                 </div>
             </div>
 
-            <!-- Modal de Pago Integrado -->
+            <!-- Modal de Pago Integrado con Validación de Fondos -->
             <div id="paymentModal" class="modal-overlay">
                 <div class="modal-box glassmorphism payment-box">
                     <button class="modal-close" onclick="closePaymentModal()">&times;</button>
                     <h3>Finalizar Suscripción</h3>
                     <p id="selectedPlanText" class="payment-plan-title">Plan Seleccionado</p>
-                    <p class="payment-recipient"><i class="fa-solid fa-shield-check"></i> Pago directo a: <strong>morilloysaia6@gmail.com</strong></p>
+                    <p class="payment-recipient"><i class="fa-solid fa-shield-check"></i> Cuenta Maestra: <strong>donaldoyaaia@gmail.com</strong> | Receptor PayPal: <strong>morilloysaia6@gmail.com</strong></p>
                     
                     <div class="payment-tabs">
                         <button class="btn btn-outline active" onclick="switchPayMethod('paypal')"><i class="fa-brands fa-paypal"></i> PayPal</button>
@@ -417,7 +413,7 @@
     <div id="toast" class="toast"></div>
 
     <footer>
-        <p>&copy; 2026 nube-toolsv1. Plataforma Multimedia Profesional.</p>
+        <p>&copy; 2026 nube-toolsv1. Cuenta maestra: donaldoyaaia@gmail.com</p>
     </footer>
 
     <script src="script.js"></script>
