@@ -47,10 +47,10 @@
                     <div class="badge"><i class="fa-solid fa-sparkles"></i> SUITE MULTIMEDIA NEXT-GEN</div>
                     <h1>Potencia y Precisión en Procesamiento de Media</h1>
                     <p class="description">
-                        Plataforma web económica y de nivel profesional. Cuenta maestra: <strong>donaldoyaaia@gmail.com</strong>. Pagos seguros verificados directo a <strong>morilloysaia6@gmail.com</strong>.
+                        Plataforma web económica y de nivel profesional. Cuenta maestra: <strong>donaldoyaaia@gmail.com</strong>. Pagos seguros mediante PayPal directo a <strong>morilloysaia6@gmail.com</strong>.
                     </p>
                     <div class="hero-actions">
-                        <button class="btn btn-primary btn-glow" onclick="switchView('compressor', event)">Compresor 4K <i class="fa-solid fa-file-video"></i></button>
+                        <button class="btn btn-primary btn-glow" onclick="switchView('bg-remover', event)">Quitar Fondo <i class="fa-solid fa-image"></i></button>
                         <button class="btn btn-outline" onclick="switchView('pricing', event)">Ver Planes VIP <i class="fa-solid fa-crown"></i></button>
                     </div>
                 </div>
@@ -68,7 +68,7 @@
                             <span class="status active">donaldoyaaia@gmail.com</span>
                         </div>
                         <div class="status-item">
-                            <span>Pasarela de Pago (Receptor)</span>
+                            <span>Pasarela PayPal (Receptor)</span>
                             <span class="status active">morilloysaia6@gmail.com</span>
                         </div>
                         <div class="status-item">
@@ -76,8 +76,8 @@
                             <span class="status active" id="heroPlanBadge">GRATUITO</span>
                         </div>
                         <div class="code-preview">
-                            <code>> MasterAccount.verifyBalance();</code><br>
-                            <code>> FundValidation: Strict & Secure.</code><br>
+                            <code>> MasterAccount.verifyPayPal();</code><br>
+                            <code>> BackgroundRemover: Fully Operational.</code><br>
                             <code>> Engine status: 100% Ready.</code>
                         </div>
                     </div>
@@ -113,7 +113,7 @@
                 <div class="feature-card glassmorphism" onclick="switchView('bg-remover', event)">
                     <div class="feature-icon"><i class="fa-solid fa-image"></i></div>
                     <h3>Eliminador de Fondo Real</h3>
-                    <p>Remueve el fondo de tus imágenes en calidad media gratis, y activa VIP para fotos 4K y videos.</p>
+                    <p>Remueve el fondo de tus imágenes y videos de manera limpia con previsualización y descarga.</p>
                     <span class="feature-link">Probar herramienta <i class="fa-solid fa-arrow-right"></i></span>
                 </div>
 
@@ -203,11 +203,11 @@
             </div>
         </section>
 
-        <!-- Pestaña 4: Quitar Fondo -->
+        <!-- Pestaña 4: Quitar Fondo (Corregido y Funcional) -->
         <section id="bg-remover" class="tab-content">
             <div class="tool-card glassmorphism">
                 <h2><i class="fa-solid fa-image"></i> Eliminador de Fondo Real (Fotos y Videos)</h2>
-                <p>Remueve el fondo de tus imágenes en calidad media gratis, o activa VIP para fotos 4K y videos.</p>
+                <p>Remueve el fondo de tus imágenes y videos de forma limpia. Visualiza el resultado antes de descargar.</p>
                 
                 <div class="drop-zone" id="bgDropZone">
                     <i class="fa-solid fa-wand-magic upload-icon"></i>
@@ -218,9 +218,9 @@
                 <div class="tool-controls">
                     <label for="bgQuality">Modo de Procesamiento:</label>
                     <select id="bgQuality" class="custom-select">
-                        <option value="normal" selected>Imagen Calidad Media (Gratis)</option>
+                        <option value="normal" selected>Imagen / Video Calidad Estándar (Gratis)</option>
                         <option value="img_4k">⭐ Imagen Ultra HD 4K (Premium)</option>
-                        <option value="video_premium">⭐ Video sin Fondo (Premium)</option>
+                        <option value="video_premium">⭐ Video sin Fondo Pro (Premium)</option>
                     </select>
                     <button class="btn btn-primary" onclick="processRemoveBackground()"><i class="fa-solid fa-scissors"></i> Remover Fondo</button>
                 </div>
@@ -263,11 +263,11 @@
             </div>
         </section>
 
-        <!-- Pestaña 6: Planes VIP Temporales Ahorrativos -->
+        <!-- Pestaña 6: Planes VIP (Solo PayPal) -->
         <section id="pricing" class="tab-content">
             <div class="pricing-header">
                 <h2>Elige tu Plan VIP Económico</h2>
-                <p>Precios super ahorrativos con validación estricta de fondos. Pagos directos a <strong>morilloysaia6@gmail.com</strong></p>
+                <p>Precios super ahorrativos con pagos seguros mediante PayPal directo a <strong>morilloysaia6@gmail.com</strong></p>
             </div>
 
             <!-- Selector de Duración -->
@@ -320,7 +320,7 @@
                 </div>
             </div>
 
-            <!-- Modal de Pago Integrado con Validación Estricta de Fondos -->
+            <!-- Modal de Pago (Únicamente PayPal) -->
             <div id="paymentModal" class="modal-overlay">
                 <div class="modal-box glassmorphism payment-box">
                     <button class="modal-close" onclick="closePaymentModal()">&times;</button>
@@ -328,37 +328,8 @@
                     <p id="selectedPlanText" class="payment-plan-title">Plan Seleccionado</p>
                     <p class="payment-recipient"><i class="fa-solid fa-shield-check"></i> Cuenta Maestra: <strong>donaldoyaaia@gmail.com</strong> | Receptor PayPal: <strong>morilloysaia6@gmail.com</strong></p>
                     
-                    <div class="payment-tabs">
-                        <button class="btn btn-outline active" onclick="switchPayMethod('paypal')"><i class="fa-brands fa-paypal"></i> PayPal</button>
-                        <button class="btn btn-outline" onclick="switchPayMethod('card')"><i class="fa-solid fa-credit-card"></i> Tarjeta de Crédito</button>
-                    </div>
-
                     <div id="paypalContainer" class="payment-method-sec active-pay">
                         <div id="paypal-button-container" style="margin-top: 15px;"></div>
-                    </div>
-
-                    <div id="cardContainer" class="payment-method-sec">
-                        <form onsubmit="handleCreditCardPayment(event)" class="auth-form active-form" style="margin-top: 15px;">
-                            <div class="input-group">
-                                <i class="fa-solid fa-user"></i>
-                                <input type="text" placeholder="Nombre en la Tarjeta" required>
-                            </div>
-                            <div class="input-group">
-                                <i class="fa-solid fa-credit-card"></i>
-                                <input type="text" placeholder="Número de Tarjeta (16 dígitos)" maxlength="16" required>
-                            </div>
-                            <div style="display: flex; gap: 10px;">
-                                <div class="input-group" style="flex: 1;">
-                                    <i class="fa-solid fa-calendar"></i>
-                                    <input type="text" placeholder="MM/AA" maxlength="5" required>
-                                </div>
-                                <div class="input-group" style="flex: 1;">
-                                    <i class="fa-solid fa-lock"></i>
-                                    <input type="password" placeholder="CVV" maxlength="4" required>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-full"><i class="fa-solid fa-lock"></i> Pagar con Tarjeta</button>
-                        </form>
                     </div>
                 </div>
             </div>

@@ -700,10 +700,7 @@ body {
 .payment-box { text-align: center; }
 .payment-plan-title { font-weight: 700; color: var(--accent-cyan); margin: 8px 0; }
 .payment-recipient { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; }
-.payment-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-.payment-tabs .btn { flex: 1; justify-content: center; }
-.payment-method-sec { display: none; }
-.payment-method-sec.active-pay { display: block; }
+.payment-method-sec { display: block; }
 
 .divider { text-align: center; margin: 18px 0; position: relative; }
 .divider span { background: #0f172a; padding: 0 10px; color: var(--text-muted); font-size: 0.8rem; }

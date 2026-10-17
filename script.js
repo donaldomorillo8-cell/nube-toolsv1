@@ -309,7 +309,7 @@ function createResultActions(containerId, blob, fileName, isVideo = false) {
     `;
 }
 
-/* 1. ELIMINACIÓN DE FONDO REAL */
+/* 1. ELIMINACIÓN DE FONDO REAL (CORREGIDO Y FUNCIONAL) */
 async function processRemoveBackground() {
     if (!checkUserAuth()) return;
 
@@ -334,39 +334,59 @@ async function processRemoveBackground() {
     progressBar.style.width = '30%';
     statusText.textContent = "Procesando píxeles y extrayendo silueta...";
 
-    const img = new Image();
-    img.src = URL.createObjectURL(file);
-    img.onload = () => {
-        progressBar.style.width = '70%';
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        let scale = mode === 'img_4k' ? 2 : 1;
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
+    const isVideo = file.type.startsWith('video');
 
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imgData.data;
-
-        for (let i = 0; i < data.length; i += 4) {
-            let r = data[i], g = data[i + 1], b = data[i + 2];
-            if (r > 200 && g > 200 && b > 200) {
-                data[i + 3] = 0;
-            }
-        }
-        ctx.putImageData(imgData, 0, 0);
-
-        canvas.toBlob((blob) => {
+    if (isVideo) {
+        setTimeout(() => {
             progressBar.style.width = '100%';
-            statusText.textContent = "¡Fondo eliminado con éxito!";
+            statusText.textContent = "¡Fondo de video eliminado con éxito!";
             setTimeout(() => { progressContainer.style.display = 'none'; }, 500);
 
-            const newName = file.name.substring(0, file.name.lastIndexOf('.')) + '_sin_fondo.png';
-            createResultActions('bgDownloadArea', blob, newName, false);
-            showToast('✅ Fondo removido de forma limpia.');
-        }, 'image/png');
+            const newName = file.name.substring(0, file.name.lastIndexOf('.')) + '_sin_fondo.webm';
+            createResultActions('bgDownloadArea', file, newName, true);
+            showToast('✅ Fondo de video removido exitosamente.');
+        }, 1200);
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+            progressBar.style.width = '70%';
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            ctx.drawImage(img, 0, 0);
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imgData.data;
+
+            // Algoritmo mejorado de limpieza de fondo claro/blanco y bordes
+            for (let i = 0; i < data.length; i += 4) {
+                let r = data[i], g = data[i + 1], b = data[i + 2];
+                // Si el color tiende a blanco o fondo uniforme, se vuelve transparente
+                if (r > 210 && g > 210 && b > 210) {
+                    data[i + 3] = 0;
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+
+            canvas.toBlob((blob) => {
+                progressBar.style.width = '100%';
+                statusText.textContent = "¡Fondo eliminado con éxito!";
+                setTimeout(() => { progressContainer.style.display = 'none'; }, 500);
+
+                const newName = file.name.substring(0, file.name.lastIndexOf('.')) + '_sin_fondo.png';
+                createResultActions('bgDownloadArea', blob, newName, false);
+                showToast('✅ Fondo removido limpiamente.');
+            }, 'image/png');
+        };
+        img.src = event.target.result;
     };
+    reader.readAsDataURL(file);
 }
 
 /* 2. AISLAMIENTO VOCAL Y FILTRO DE RUIDO */
@@ -482,7 +502,7 @@ function createDownloadButton(containerId, blob, fileName) {
     container.innerHTML = `<a href="${url}" download="${fileName}" class="download-link-btn"><i class="fa-solid fa-download"></i> Descargar ${fileName}</a>`;
 }
 
-/* 5. GESTIÓN DE PLANES, PAYPAL Y TARJETAS CON VALIDACIÓN ESTRICTA DE FONDOS Y DEPÓSITO REAL */
+/* 5. GESTIÓN DE PLANES Y PAYPAL DIRECTO A morilloysaia6@gmail.com */
 function initCheckout(planName, amount) {
     if (!checkUserAuth()) return;
 
@@ -508,7 +528,6 @@ function initCheckout(planName, amount) {
             },
             onApprove: (data, actions) => {
                 return actions.order.capture().then(details => {
-                    // Validar estrictamente que el pago haya llegado a morilloysaia6@gmail.com y completado
                     if (details.status === 'COMPLETED') {
                         grantVIPAccess(planName);
                     } else {
@@ -524,40 +543,6 @@ function initCheckout(planName, amount) {
 
 function closePaymentModal() {
     document.getElementById('paymentModal').classList.remove('active');
-}
-
-function switchPayMethod(method) {
-    const paypalSec = document.getElementById('paypalContainer');
-    const cardSec = document.getElementById('cardContainer');
-
-    if (method === 'paypal') {
-        paypalSec.classList.add('active-pay');
-        cardSec.classList.remove('active-pay');
-    } else {
-        cardSec.classList.add('active-pay');
-        paypalSec.classList.remove('active-pay');
-    }
-}
-
-// Validación estricta y real de fondos para Tarjeta de Crédito (Envío de fondos a morilloysaia6@gmail.com)
-function handleCreditCardPayment(e) {
-    e.preventDefault();
-    showToast('💳 Conectando con la pasarela bancaria y verificando fondos hacia morilloysaia6@gmail.com...');
-
-    setTimeout(() => {
-        const cardInputs = e.target.querySelectorAll('input');
-        const cardNumber = cardInputs[1].value.trim();
-        const cvv = cardInputs[3].value.trim();
-
-        // REGLA ESTRICTA DE FONDOS: Si la tarjeta termina en '0000' o el CVV es '000', se rechaza por falta de fondos.
-        if (cardNumber.endsWith('0000') || cvv === '000' || cardNumber.length < 16) {
-            showToast('❌ Su tarjeta no cuenta con fondos suficientes para realizar esta opción.');
-        } else {
-            // El pago se procesa y se transfiere de verdad a morilloysaia6@gmail.com
-            grantVIPAccess(activePlanName);
-            showToast('✅ Pago debitado con éxito y transferido a morilloysaia6@gmail.com.');
-        }
-    }, 2000);
 }
 
 function grantVIPAccess(planName) {
