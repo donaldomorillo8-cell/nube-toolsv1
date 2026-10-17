@@ -49,6 +49,12 @@ function checkUserAuth() {
 
 function checkPremiumAuth() {
     if (!checkUserAuth()) return false;
+    
+    // RECONOCIMIENTO AUTOMÁTICO DE PRIVILEGIOS MÁXIMOS PARA TU CORREO MAESTRO
+    if (currentUser.email === 'donaldoyaaia@gmail.com') {
+        return true;
+    }
+
     if (!currentUser.isPremium || new Date().getTime() > currentUser.expireTimestamp) {
         currentUser.isPremium = false;
         saveDatabase();
@@ -120,13 +126,17 @@ function switchAuthTab(tab) {
 function handleLogin(e) {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value;
+    
+    // Asignación automática de privilegios máximos si es la cuenta maestra
+    const isMaster = (email === 'donaldoyaaia@gmail.com');
+
     currentUser = {
         name: email.split('@')[0],
         email: email,
         isLoggedIn: true,
-        isPremium: false,
-        planName: 'Gratuito',
-        expireTimestamp: 0,
+        isPremium: isMaster ? true : false,
+        planName: isMaster ? 'VIP Total (Maestro)' : 'Gratuito',
+        expireTimestamp: isMaster ? 9999999999999 : 0,
         picture: ''
     };
     saveDatabase();
@@ -139,13 +149,16 @@ function handleRegister(e) {
     e.preventDefault();
     const nickname = document.getElementById('regUsername').value || 'Usuario Pro';
     const email = document.getElementById('regEmail').value;
+    
+    const isMaster = (email === 'donaldoyaaia@gmail.com');
+
     currentUser = {
         name: nickname,
         email: email,
         isLoggedIn: true,
-        isPremium: false,
-        planName: 'Gratuito',
-        expireTimestamp: 0,
+        isPremium: isMaster ? true : false,
+        planName: isMaster ? 'VIP Total (Maestro)' : 'Gratuito',
+        expireTimestamp: isMaster ? 9999999999999 : 0,
         picture: ''
     };
     saveDatabase();
@@ -160,8 +173,9 @@ function updateUserSession() {
 
     if (!currentUser || !currentUser.isLoggedIn) return;
 
-    let isVIPActive = currentUser.isPremium && new Date().getTime() <= currentUser.expireTimestamp;
-    let planLabel = isVIPActive ? `⭐ VIP (${currentUser.planName})` : 'GRATUITO';
+    let isMaster = (currentUser.email === 'donaldoyaaia@gmail.com');
+    let isVIPActive = isMaster || (currentUser.isPremium && new Date().getTime() <= currentUser.expireTimestamp);
+    let planLabel = isVIPActive ? `⭐ VIP TOTAL` : 'GRATUITO';
 
     if (heroPlanBadge) {
         heroPlanBadge.textContent = planLabel;
@@ -212,17 +226,20 @@ function initGoogleAuth() {
 function handleGoogleCredentialResponse(response) {
     const data = parseJwt(response.credential);
     if (data) {
+        const userEmail = data.email || '';
+        const isMaster = (userEmail === 'donaldoyaaia@gmail.com');
+
         currentUser = {
             name: data.name || data.given_name || 'Usuario Google',
-            email: data.email || 'donaldoyaaia@gmail.com',
+            email: userEmail,
             isLoggedIn: true,
-            isPremium: currentUser?.isPremium || false,
-            planName: currentUser?.planName || 'Gratuito',
-            expireTimestamp: currentUser?.expireTimestamp || 0,
+            isPremium: isMaster ? true : (currentUser?.isPremium || false),
+            planName: isMaster ? 'VIP Total (Maestro)' : (currentUser?.planName || 'Gratuito'),
+            expireTimestamp: isMaster ? 9999999999999 : (currentUser?.expireTimestamp || 0),
             picture: data.picture || ''
         };
         saveDatabase();
-        showToast(`✅ ¡Bienvenido, ${currentUser.name}! Cuenta maestra vinculada.`);
+        showToast(`✅ ¡Bienvenido, ${currentUser.name}!`);
         closeAuthModal();
         updateUserSession();
     } else {
@@ -309,7 +326,7 @@ function createResultActions(containerId, blob, fileName, isVideo = false) {
     `;
 }
 
-/* 1. ELIMINACIÓN DE FONDO REAL (CORREGIDO Y FUNCIONAL) */
+/* 1. ELIMINACIÓN DE FONDO REAL */
 async function processRemoveBackground() {
     if (!checkUserAuth()) return;
 
@@ -364,10 +381,8 @@ async function processRemoveBackground() {
             const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const data = imgData.data;
 
-            // Algoritmo mejorado de limpieza de fondo claro/blanco y bordes
             for (let i = 0; i < data.length; i += 4) {
                 let r = data[i], g = data[i + 1], b = data[i + 2];
-                // Si el color tiende a blanco o fondo uniforme, se vuelve transparente
                 if (r > 210 && g > 210 && b > 210) {
                     data[i + 3] = 0;
                 }
@@ -502,7 +517,7 @@ function createDownloadButton(containerId, blob, fileName) {
     container.innerHTML = `<a href="${url}" download="${fileName}" class="download-link-btn"><i class="fa-solid fa-download"></i> Descargar ${fileName}</a>`;
 }
 
-/* 5. GESTIÓN DE PLANES Y PAYPAL DIRECTO A morilloysaia6@gmail.com */
+/* 5. GESTIÓN DE PLANES Y PAYPAL */
 function initCheckout(planName, amount) {
     if (!checkUserAuth()) return;
 
@@ -556,5 +571,5 @@ function grantVIPAccess(planName) {
 
     updateUserSession();
     closePaymentModal();
-    showToast(`🎉 ¡Compra confirmada! Fondos depositados en morilloysaia6@gmail.com. Cuenta VIP activa.`);
+    showToast(`🎉 ¡Compra confirmada! Cuenta VIP activa.`);
 }
