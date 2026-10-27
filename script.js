@@ -293,37 +293,97 @@ function setupDropZones() {
             if (!checkUserAuth()) return;
             if (e.dataTransfer.files.length) {
                 inputEl.files = e.dataTransfer.files;
-                showToast(`📁 Archivo listo: ${e.dataTransfer.files[0].name}`);
+                inputEl.dispatchEvent(new Event('change', { bubbles: true }));
             }
         });
 
         inputEl.addEventListener('change', () => {
             if (inputEl.files.length) {
-                showToast(`📁 Archivo listo: ${inputEl.files[0].name}`);
+                const file = inputEl.files[0];
+                showToast(`📁 Archivo listo: ${file.name}`);
+                const infoId = zone.drop === 'converterDropZone' ? 'converterFileInfo' :
+                    zone.drop === 'compressorDropZone' ? 'compressorMetadata' : null;
+                const info = infoId && document.getElementById(infoId);
+                if (info) {
+                    info.textContent = `${file.name} · ${formatBytes(file.size)}`;
+                    info.classList.add('has-file');
+                }
+                if (zone.drop === 'compressorDropZone') inspectVideoFile(file);
+                if (zone.drop === 'converterDropZone') {
+                    document.getElementById('converterDownloadArea').innerHTML = '';
+                    document.getElementById('converterStatusText').textContent = '';
+                }
             }
         });
     });
 }
 
+function formatBytes(bytes) {
+    if (!Number.isFinite(bytes) || bytes < 0) return 'Tamaño desconocido';
+    if (bytes < 1024) return `${bytes} B`;
+    const units = ['KB', 'MB', 'GB'];
+    let size = bytes / 1024;
+    let unit = units[0];
+    for (let i = 1; size >= 1024 && i < units.length; i++) {
+        size /= 1024;
+        unit = units[i];
+    }
+    return `${size.toFixed(size >= 100 ? 0 : 1)} ${unit}`;
+}
+
+function inspectVideoFile(file) {
+    const info = document.getElementById('compressorMetadata');
+    if (!file.type.startsWith('video/') && !/\.(mp4|mov|m4v|webm|mkv|avi)$/i.test(file.name)) {
+        info.textContent = 'Selecciona un archivo de video compatible.';
+        return;
+    }
+    const objectUrl = URL.createObjectURL(file);
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.onloadedmetadata = () => {
+        const duration = Number.isFinite(video.duration)
+            ? `${Math.floor(video.duration / 60)}:${String(Math.floor(video.duration % 60)).padStart(2, '0')}`
+            : 'duración no disponible';
+        info.textContent = `${file.name} · ${formatBytes(file.size)} · ${video.videoWidth}×${video.videoHeight} · ${duration}`;
+        URL.revokeObjectURL(objectUrl);
+    };
+    video.onerror = () => {
+        info.textContent = `${file.name} · ${formatBytes(file.size)} · No se pudo leer la vista previa; FFmpeg intentará analizar el archivo.`;
+        URL.revokeObjectURL(objectUrl);
+    };
+    video.src = objectUrl;
+}
+
 function createResultActions(containerId, blob, fileName, isVideo = false) {
     const container = document.getElementById(containerId);
     const url = URL.createObjectURL(blob);
-    
-    let previewHtml = isVideo 
-        ? `<div style="margin-bottom: 15px;"><video src="${url}" controls style="max-width: 100%; max-height: 240px; border-radius: 10px; border: 1px solid var(--accent-cyan);"></video></div>`
-        : `<div style="margin-bottom: 15px;"><img src="${url}" alt="Resultado" style="max-width: 100%; max-height: 200px; border-radius: 10px; border: 1px solid var(--accent-cyan);"></div>`;
+    container.replaceChildren();
 
-    container.innerHTML = `
-        ${previewHtml}
-        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-            <button class="btn btn-outline" onclick="window.open('${url}', '_blank')">
-                <i class="fa-solid fa-eye"></i> Ver Resultado
-            </button>
-            <a href="${url}" download="${fileName}" class="download-link-btn" style="margin-top: 0;">
-                <i class="fa-solid fa-download"></i> Descargar Archivo
-            </a>
-        </div>
-    `;
+    const preview = isVideo ? document.createElement('video') : document.createElement('img');
+    preview.src = url;
+    if (isVideo) {
+        preview.controls = true;
+        preview.preload = 'metadata';
+    } else {
+        preview.alt = 'Vista previa del resultado';
+    }
+    preview.className = 'result-preview';
+
+    const actions = document.createElement('div');
+    actions.className = 'result-actions';
+    const openButton = document.createElement('button');
+    openButton.className = 'btn btn-outline';
+    openButton.type = 'button';
+    openButton.innerHTML = '<i class="fa-solid fa-eye"></i> Ver resultado';
+    openButton.addEventListener('click', () => window.open(url, '_blank', 'noopener'));
+
+    const downloadLink = document.createElement('a');
+    downloadLink.href = url;
+    downloadLink.download = fileName;
+    downloadLink.className = 'download-link-btn';
+    downloadLink.innerHTML = '<i class="fa-solid fa-download"></i> Descargar archivo';
+    actions.append(openButton, downloadLink);
+    container.append(preview, actions);
 }
 
 /* 1. ELIMINACIÓN DE FONDO REAL */
@@ -441,80 +501,384 @@ async function processRemoveBackgroundNoise() {
     }, 1000);
 }
 
+/* Motor FFmpeg WebAssembly: se carga bajo demanda para no ralentizar la página. */
+let ffmpegInstance = null;
+let ffmpegLoadPromise = null;
+const ffmpegAssetUrls = [];
+const ffmpegCdnBase = 'https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd';
+const ffmpegCoreBase = 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd';
+
+async function makeBlobUrl(url, mimeType) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`No se pudo descargar el motor multimedia (${response.status}).`);
+    const blobUrl = URL.createObjectURL(new Blob([await response.arrayBuffer()], { type: mimeType }));
+    ffmpegAssetUrls.push(blobUrl);
+    return blobUrl;
+}
+
+async function loadFFmpeg() {
+    if (ffmpegInstance) return ffmpegInstance;
+    if (!ffmpegLoadPromise) {
+        ffmpegLoadPromise = (async () => {
+            const wrapperResponse = await fetch(`${ffmpegCdnBase}/ffmpeg.js`);
+            if (!wrapperResponse.ok) throw new Error('No se pudo descargar la biblioteca de video.');
+            const wrapperSource = await wrapperResponse.text();
+            const workerPatch = 'new URL(e.p+e.u(814),e.b)';
+            if (!wrapperSource.includes(workerPatch)) {
+                throw new Error('La versión del motor de video cambió. Recarga la página e inténtalo de nuevo.');
+            }
+            const patchedWrapper = wrapperSource.replace(workerPatch, 'r.workerLoadURL');
+            const wrapperUrl = URL.createObjectURL(new Blob([patchedWrapper], { type: 'text/javascript' }));
+            try {
+                await import(wrapperUrl);
+            } finally {
+                URL.revokeObjectURL(wrapperUrl);
+            }
+            if (!window.FFmpegWASM?.FFmpeg) {
+                throw new Error('El motor de video no pudo inicializarse en este navegador.');
+            }
+
+            const ffmpeg = new window.FFmpegWASM.FFmpeg();
+            const [workerLoadURL, coreURL, wasmURL] = await Promise.all([
+                makeBlobUrl(`${ffmpegCdnBase}/814.ffmpeg.js`, 'text/javascript'),
+                makeBlobUrl(`${ffmpegCoreBase}/ffmpeg-core.js`, 'text/javascript'),
+                makeBlobUrl(`${ffmpegCoreBase}/ffmpeg-core.wasm`, 'application/wasm')
+            ]);
+            await ffmpeg.load({ workerLoadURL, coreURL, wasmURL });
+            ffmpegInstance = ffmpeg;
+            return ffmpeg;
+        })();
+    }
+    try {
+        return await ffmpegLoadPromise;
+    } catch (error) {
+        ffmpegLoadPromise = null;
+        throw error;
+    }
+}
+
+window.addEventListener('pagehide', () => {
+    ffmpegAssetUrls.forEach(url => URL.revokeObjectURL(url));
+});
+
+function getVideoProfile(level) {
+    const profiles = {
+        baja: { width: 1280, height: 720, crf: 31, audio: '96k', label: 'Ligero · máximo 720p' },
+        media: { width: 1920, height: 1080, crf: 27, audio: '128k', label: 'Equilibrado · máximo 1080p' },
+        fhd_premium: { width: 1920, height: 1080, crf: 24, audio: '160k', label: 'Alta calidad · máximo 1080p' },
+        '4k_premium': { width: 3840, height: 2160, crf: 27, audio: '160k', label: 'Alta calidad · máximo 4K' }
+    };
+    return profiles[level] || profiles.media;
+}
+
 /* 3. COMPRESOR DE VIDEO REAL */
 async function processRealVideoCompression() {
     if (!checkUserAuth()) return;
 
     const input = document.getElementById('compressorInput');
     const level = document.getElementById('compressionLevel').value;
-
     if (level.includes('premium') && !checkPremiumAuth()) return;
-
     if (!input.files.length) {
         showToast('⚠️ Carga un archivo de video primero.');
         return;
     }
 
     const file = input.files[0];
+    const supportedExtensions = ['mp4', 'mov', 'm4v', 'webm', 'mkv', 'avi'];
+    const extension = (file.name.split('.').pop() || '').toLowerCase();
+    if (!file.type.startsWith('video/') && !supportedExtensions.includes(extension)) {
+        showToast('⚠️ Elige un archivo de video MP4, MOV, WEBM, MKV o AVI.');
+        return;
+    }
+    if (file.size > 250 * 1024 * 1024) {
+        showToast('⚠️ El archivo supera 250 MB; prueba con un video más pequeño para evitar problemas de memoria.');
+        return;
+    }
+
     const progressContainer = document.getElementById('compressorProgress');
     const progressBar = progressContainer.querySelector('.progress-bar');
     const statusText = document.getElementById('compressorStatusText');
+    const report = document.getElementById('compressorReport');
     const downloadArea = document.getElementById('compressorDownloadArea');
+    const button = document.querySelector('#compressor .tool-controls .btn-primary');
+    const profile = getVideoProfile(level);
+    const inputName = `input.${supportedExtensions.includes(extension) ? extension : 'mp4'}`;
+    const outputName = 'compressed.mp4';
+    let ffmpeg = null;
+    let progressHandler = null;
+    let inputWritten = false;
+    let outputWritten = false;
 
     downloadArea.innerHTML = '';
+    report.innerHTML = '';
     progressContainer.style.display = 'block';
-    progressBar.style.width = '0%';
-    statusText.textContent = "Optimizando fotogramas y buffer de video (Anti-lag)...";
+    progressBar.style.width = '2%';
+    statusText.textContent = 'Preparando el motor de video…';
+    statusText.classList.remove('error-status');
+    if (button) button.disabled = true;
 
-    setTimeout(() => {
+    try {
+        ffmpeg = await loadFFmpeg();
+        statusText.textContent = 'Analizando el video y cargándolo en el motor…';
+        progressBar.style.width = '8%';
+        const inputData = new Uint8Array(await file.arrayBuffer());
+        await ffmpeg.writeFile(inputName, inputData);
+        inputWritten = true;
+
+        const scaleFilter = `scale=w='min(${profile.width},iw)':h='min(${profile.height},ih)':force_original_aspect_ratio=decrease:force_divisible_by=2`;
+        progressHandler = ({ progress, time }) => {
+            if (!Number.isFinite(progress)) return;
+            const percent = Math.max(8, Math.min(95, Math.round(progress * 84) + 8));
+            progressBar.style.width = `${percent}%`;
+            const seconds = Number.isFinite(time) ? ` · ${Math.max(0, time / 1_000_000).toFixed(1)} s procesados` : '';
+            statusText.textContent = `Recodificando video… ${percent}%${seconds}`;
+        };
+        ffmpeg.on('progress', progressHandler);
+        statusText.textContent = `${profile.label}: convirtiendo imagen y audio a MP4…`;
+        await ffmpeg.exec([
+            '-y', '-i', inputName,
+            '-map', '0:v:0', '-map', '0:a?',
+            '-vf', scaleFilter,
+            '-c:v', 'libx264', '-preset', 'veryfast', '-crf', String(profile.crf),
+            '-pix_fmt', 'yuv420p',
+            '-c:a', 'aac', '-b:a', profile.audio,
+            '-movflags', '+faststart',
+            outputName
+        ]);
+
+        outputWritten = true;
+        const outputData = await ffmpeg.readFile(outputName);
+        const compressedBlob = new Blob([outputData], { type: 'video/mp4' });
+        if (!compressedBlob.size) throw new Error('El motor no generó un video de salida.');
+
+        const delta = file.size - compressedBlob.size;
+        const savedPercent = Math.round((delta / file.size) * 100);
+        const result = delta > 0
+            ? `Reducción de ${savedPercent}% (${formatBytes(delta)} menos)`
+            : `El nuevo MP4 pesa ${formatBytes(Math.abs(delta))} más (${Math.abs(savedPercent)}%); el original ya estaba más optimizado para este perfil.`;
+        report.innerHTML = '';
+        const comparison = document.createElement('div');
+        comparison.className = 'comparison-grid';
+        comparison.innerHTML = `
+            <div><span>Original</span><strong>${formatBytes(file.size)}</strong></div>
+            <div><span>Resultado MP4</span><strong>${formatBytes(compressedBlob.size)}</strong></div>
+            <div class="comparison-result"><span>Resultado</span><strong></strong></div>`;
+        comparison.querySelector('.comparison-result strong').textContent = result;
+        report.appendChild(comparison);
+        createResultActions('compressorDownloadArea', compressedBlob, `${getBaseName(file.name)}_comprimido.mp4`, true);
         progressBar.style.width = '100%';
-        statusText.textContent = "¡Compresión terminada con éxito!";
-        setTimeout(() => { progressContainer.style.display = 'none'; }, 500);
-
-        const compressedBlob = new Blob([file], { type: 'video/webm' });
-        const newFileName = file.name.substring(0, file.name.lastIndexOf('.')) + '_comprimido.webm';
-        createResultActions('compressorDownloadArea', compressedBlob, newFileName, true);
-        showToast('✅ Video comprimido sin lag ni pérdida de audio.');
-    }, 1200);
+        statusText.textContent = `Listo · ${profile.label}. El video fue recodificado; revisa el tamaño antes de descargar.`;
+        showToast(delta > 0 ? '✅ Video recodificado y reducido.' : '✅ Video recodificado; revisa la comparación de tamaño.');
+    } catch (error) {
+        statusText.textContent = `No se pudo comprimir: ${error.message || 'error de procesamiento.'}`;
+        statusText.classList.add('error-status');
+        showToast('❌ No se pudo procesar el video. Revisa tu conexión o prueba con un archivo menor.');
+    } finally {
+        if (ffmpeg && progressHandler) {
+            try { ffmpeg.off('progress', progressHandler); } catch (_) {}
+        }
+        if (ffmpeg) {
+            try {
+                if (inputWritten) await ffmpeg.deleteFile(inputName);
+                if (outputWritten) await ffmpeg.deleteFile(outputName);
+            } catch (_) {
+                // La limpieza temporal no afecta al archivo ya descargable.
+            }
+        }
+        if (button) button.disabled = false;
+        if (progressBar.style.width !== '100%') progressContainer.style.display = 'none';
+    }
 }
 
-/* 4. CONVERSOR DE DOCUMENTOS */
-function processConversion() {
-    if (!checkUserAuth()) return;
+/* 4. CONVERSOR REAL DE DOCUMENTOS: PDF, DOCX, TXT, HTML y CSV a PDF/DOCX/TXT. */
+const documentLibraryPromises = new Map();
+const documentCdn = {
+    zip: 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',
+    mammoth: 'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.9.0/mammoth.browser.min.js',
+    pdf: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+    jspdf: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
+};
 
+function loadBrowserLibrary(key, globalCheck) {
+    if (globalCheck()) return Promise.resolve();
+    if (documentLibraryPromises.has(key)) return documentLibraryPromises.get(key);
+    const promise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = documentCdn[key];
+        script.async = true;
+        script.onload = () => globalCheck()
+            ? resolve()
+            : reject(new Error(`La biblioteca ${key} no quedó disponible.`));
+        script.onerror = () => reject(new Error(`No se pudo cargar la biblioteca ${key}; revisa tu conexión.`));
+        document.head.appendChild(script);
+    });
+    documentLibraryPromises.set(key, promise);
+    return promise;
+}
+
+function getBaseName(fileName) {
+    return fileName.replace(/\.[^.]+$/, '').replace(/[\\/:*?"<>|]/g, '_') || 'documento';
+}
+
+function escapeXml(text) {
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+}
+
+async function extractDocumentText(file) {
+    const extension = (file.name.split('.').pop() || '').toLowerCase();
+    if (extension === 'pdf') {
+        await loadBrowserLibrary('pdf', () => Boolean(window.pdfjsLib));
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        const pdf = await window.pdfjsLib.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
+        const pages = [];
+        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+            const page = await pdf.getPage(pageNumber);
+            const content = await page.getTextContent();
+            pages.push(content.items.map(item => item.str).join(' '));
+        }
+        return pages.join('\n\n');
+    }
+    if (extension === 'docx') {
+        await loadBrowserLibrary('mammoth', () => Boolean(window.mammoth));
+        const result = await window.mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+        return result.value || '';
+    }
+    if (['txt', 'text', 'csv'].includes(extension)) {
+        return new TextDecoder('utf-8').decode(await file.arrayBuffer()).replace(/^\uFEFF/, '');
+    }
+    if (['html', 'htm'].includes(extension)) {
+        const parser = new DOMParser();
+        const parsed = parser.parseFromString(await file.text(), 'text/html');
+        parsed.querySelectorAll('script,style,template,noscript').forEach(node => node.remove());
+        parsed.querySelectorAll('br').forEach(node => node.replaceWith('\n'));
+        parsed.querySelectorAll('p,div,li,tr,h1,h2,h3,h4,h5,h6,blockquote').forEach(node => node.append('\n'));
+        return (parsed.body.textContent || '').replace(/\u00a0/g, ' ');
+    }
+    throw new Error('Formato de entrada no compatible. Usa PDF, DOCX, TXT, HTML o CSV.');
+}
+
+async function makeDocx(text) {
+    await loadBrowserLibrary('zip', () => Boolean(window.JSZip));
+    const zip = new window.JSZip();
+    const paragraphs = text.split(/\r?\n/).map(line =>
+        `<w:p><w:r><w:t xml:space="preserve">${escapeXml(line)}</w:t></w:r></w:p>`
+    ).join('');
+    zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+<Default Extension="xml" ContentType="application/xml"/>
+<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+</Types>`);
+    zip.file('_rels/.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`);
+    zip.file('word/document.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+<w:body>${paragraphs}<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr></w:body>
+</w:document>`);
+    return zip.generateAsync({
+        type: 'blob',
+        mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    });
+}
+
+async function makePdf(text) {
+    await loadBrowserLibrary('jspdf', () => Boolean(window.jspdf?.jsPDF));
+    const pdf = new window.jspdf.jsPDF({ unit: 'pt', format: 'a4' });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 48;
+    const lineHeight = 15;
+    let y = margin;
+    const lines = text.split(/\r?\n/).flatMap(line =>
+        line ? pdf.splitTextToSize(line, pageWidth - margin * 2) : ['']
+    );
+    for (const line of lines) {
+        if (y + lineHeight > pageHeight - margin) {
+            pdf.addPage();
+            y = margin;
+        }
+        if (line) pdf.text(line, margin, y);
+        y += lineHeight;
+    }
+    return pdf.output('blob');
+}
+
+async function processConversion() {
+    if (!checkUserAuth()) return;
     const input = document.getElementById('converterInput');
     const target = document.getElementById('targetFormat').value;
-
-    const isPremiumFormat = ['xlsx', 'pptx', 'mp4'].includes(target);
-    if (isPremiumFormat && !checkPremiumAuth()) return;
-
     if (!input.files.length) {
-        showToast('⚠️ Carga un archivo para convertir.');
+        showToast('⚠️ Carga un documento primero.');
         return;
     }
 
     const file = input.files[0];
+    const extension = (file.name.split('.').pop() || '').toLowerCase();
+    if (!['pdf', 'docx', 'txt', 'text', 'html', 'htm', 'csv'].includes(extension)) {
+        showToast('⚠️ Formato no compatible. Usa PDF, DOCX, TXT, HTML o CSV.');
+        return;
+    }
     const progressContainer = document.getElementById('converterProgress');
     const progressBar = progressContainer.querySelector('.progress-bar');
-
+    const statusText = document.getElementById('converterStatusText');
+    const downloadArea = document.getElementById('converterDownloadArea');
+    const button = document.querySelector('#converter .tool-controls .btn-primary');
+    downloadArea.innerHTML = '';
     progressContainer.style.display = 'block';
-    progressBar.style.width = '50%';
+    progressBar.style.width = '8%';
+    statusText.textContent = 'Leyendo el contenido del documento…';
+    statusText.classList.remove('error-status');
+    if (button) button.disabled = true;
 
-    setTimeout(() => {
+    try {
+        const text = (await extractDocumentText(file)).replace(/\r\n?/g, '\n').trim();
+        if (!text) {
+            throw new Error('No se encontró texto. Si el PDF es un escaneo o una imagen, necesitas OCR antes de convertirlo.');
+        }
+        if (text.length > 2_000_000) {
+            throw new Error('El documento contiene demasiado texto para procesarlo en una sola conversión.');
+        }
+        progressBar.style.width = '55%';
+        statusText.textContent = `Generando un archivo ${target.toUpperCase()} válido…`;
+
+        let blob;
+        if (target === 'docx') blob = await makeDocx(text);
+        else if (target === 'pdf') blob = await makePdf(text);
+        else if (target === 'txt') blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+        else throw new Error('Formato de salida no compatible.');
+
+        const outputName = `${getBaseName(file.name)}_convertido.${target}`;
+        createDownloadButton('converterDownloadArea', blob, outputName);
         progressBar.style.width = '100%';
-        setTimeout(() => { progressContainer.style.display = 'none'; }, 400);
-
-        const newName = file.name.substring(0, file.name.lastIndexOf('.')) + `_convertido.${target}`;
-        const blob = new Blob([file], { type: 'application/octet-stream' });
-        createDownloadButton('converterDownloadArea', blob, newName);
-        showToast(`✅ Archivo convertido a .${target.toUpperCase()} correctamente.`);
-    }, 500);
+        statusText.textContent = `Conversión terminada · ${formatBytes(blob.size)} · ${outputName}`;
+        showToast(`✅ Documento convertido a ${target.toUpperCase()}.`);
+    } catch (error) {
+        statusText.textContent = `No se pudo convertir: ${error.message || 'error de procesamiento.'}`;
+        statusText.classList.add('error-status');
+        showToast('❌ No se pudo convertir el documento; revisa el formato y vuelve a intentarlo.');
+    } finally {
+        if (button) button.disabled = false;
+        if (progressBar.style.width !== '100%') progressContainer.style.display = 'none';
+    }
 }
 
 function createDownloadButton(containerId, blob, fileName) {
     const container = document.getElementById(containerId);
     const url = URL.createObjectURL(blob);
-    container.innerHTML = `<a href="${url}" download="${fileName}" class="download-link-btn"><i class="fa-solid fa-download"></i> Descargar ${fileName}</a>`;
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.className = 'download-link-btn';
+    const icon = document.createElement('i');
+    icon.className = 'fa-solid fa-download';
+    const label = document.createElement('span');
+    label.textContent = `Descargar ${fileName}`;
+    link.append(icon, label);
+    container.replaceChildren(link);
 }
 
 /* 5. GESTIÓN DE PLANES Y PAYPAL */

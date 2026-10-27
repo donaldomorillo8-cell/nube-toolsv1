@@ -736,3 +736,410 @@ footer {
     .hero-section, .stats-section, .features-grid, .pricing-grid { grid-template-columns: 1fr; }
     .navbar-wrapper { padding: 0 10px; }
 }
+
+/* Polished layouts, clear conversion states, and responsive upload/report UI */
+body {
+    background-image:
+        radial-gradient(ellipse at 8% 8%, rgba(37, 99, 235, 0.12), transparent 36%),
+        radial-gradient(ellipse at 92% 38%, rgba(124, 58, 237, 0.1), transparent 34%);
+}
+
+.navbar {
+    gap: 18px;
+    border-color: rgba(148, 163, 184, 0.16);
+    background: rgba(9, 13, 22, 0.88);
+}
+
+.container {
+    width: min(100%, 1240px);
+}
+
+.hero-content h1 {
+    max-width: 750px;
+    font-size: clamp(2.5rem, 5vw, 4.4rem);
+    letter-spacing: -0.055em;
+}
+
+.hero-caption {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 17px;
+    color: var(--text-muted);
+    font-size: 0.86rem;
+    line-height: 1.55;
+}
+
+.hero-caption i {
+    color: #34d399;
+}
+
+.hero-card,
+.stat-card,
+.feature-card,
+.tool-card,
+.plan-card {
+    background: linear-gradient(150deg, rgba(20, 31, 55, 0.88), rgba(11, 17, 31, 0.82));
+    border-color: rgba(148, 163, 184, 0.16);
+}
+
+.stat-card {
+    min-height: 154px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 18px;
+}
+
+.feature-card {
+    min-height: 255px;
+    border-radius: 18px;
+}
+
+.feature-card p,
+.tool-card > p {
+    color: var(--text-muted);
+    line-height: 1.7;
+}
+
+.how-it-works {
+    padding: 34px;
+    margin: 10px 0 45px;
+    border-color: rgba(59, 130, 246, 0.22);
+}
+
+.how-it-works .features-header {
+    margin-bottom: 24px;
+}
+
+.steps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.step-card {
+    padding: 21px;
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.step-number {
+    display: inline-flex;
+    margin-bottom: 12px;
+    color: var(--accent-cyan);
+    font: 700 0.82rem var(--font-heading);
+    letter-spacing: 0.12em;
+}
+
+.step-card h3 {
+    margin-bottom: 8px;
+    font: 700 1.08rem var(--font-heading);
+}
+
+.step-card p {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    line-height: 1.65;
+}
+
+.tool-card {
+    padding: clamp(22px, 4vw, 42px);
+    border-radius: 24px;
+}
+
+.tool-card h2 {
+    line-height: 1.3;
+}
+
+.drop-zone {
+    border-color: rgba(6, 182, 212, 0.35);
+    background: linear-gradient(145deg, rgba(59, 130, 246, 0.045), rgba(139, 92, 246, 0.045));
+}
+
+.drop-zone p {
+    color: #e2e8f0;
+    line-height: 1.7;
+}
+
+.file-selection {
+    display: block;
+    min-height: 1.4em;
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 0.83rem;
+    overflow-wrap: anywhere;
+}
+
+.file-selection.has-file {
+    color: #67e8f9;
+}
+
+.tool-controls {
+    align-items: end;
+}
+
+.tool-controls > label {
+    color: #cbd5e1;
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.custom-select {
+    min-height: 44px;
+    max-width: 100%;
+}
+
+.tool-controls .btn {
+    min-height: 44px;
+}
+
+.btn:disabled {
+    opacity: 0.58;
+    cursor: wait;
+    transform: none;
+}
+
+.tool-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 20px 0 4px;
+    padding: 14px 16px;
+    border: 1px solid rgba(6, 182, 212, 0.18);
+    border-radius: 12px;
+    background: rgba(6, 182, 212, 0.045);
+    color: var(--text-muted);
+    font-size: 0.84rem;
+    line-height: 1.65;
+}
+
+.tool-note i {
+    margin-top: 3px;
+    color: var(--accent-cyan);
+}
+
+.status-indicator {
+    overflow-wrap: anywhere;
+    line-height: 1.6;
+}
+
+.status-indicator.error-status {
+    color: #fda4af;
+}
+
+.file-report {
+    margin-top: 18px;
+}
+
+.comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    text-align: left;
+}
+
+.comparison-grid > div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.035);
+}
+
+.comparison-grid span {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+}
+
+.comparison-grid strong {
+    color: #f8fafc;
+    font-size: 0.96rem;
+    overflow-wrap: anywhere;
+}
+
+.comparison-result {
+    border-color: rgba(6, 182, 212, 0.3) !important;
+}
+
+.result-preview {
+    display: block;
+    width: min(100%, 720px);
+    max-height: 400px;
+    margin: 0 auto 16px;
+    border: 1px solid rgba(6, 182, 212, 0.35);
+    border-radius: 16px;
+    background: #020617;
+    object-fit: contain;
+}
+
+.result-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.result-actions .download-link-btn {
+    margin-top: 0 !important;
+}
+
+.progress-bar {
+    background-size: 200% 100%;
+    box-shadow: 0 0 16px rgba(6, 182, 212, 0.35);
+}
+
+footer {
+    margin-top: 24px;
+    line-height: 1.7;
+}
+
+:focus-visible {
+    outline: 2px solid var(--accent-cyan);
+    outline-offset: 3px;
+}
+
+@media (max-width: 900px) {
+    .navbar {
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 14px 18px;
+    }
+
+    .navbar nav {
+        order: 3;
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .nav-links {
+        width: max-content;
+        margin: 0 auto;
+    }
+
+    .hero-section {
+        grid-template-columns: 1fr;
+        gap: 28px;
+    }
+
+    .stats-section,
+    .pricing-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .features-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 620px) {
+    .navbar-wrapper {
+        top: 0;
+        padding: 8px;
+    }
+
+    .navbar {
+        gap: 12px;
+        padding: 12px;
+    }
+
+    .logo {
+        font-size: 1.12rem;
+    }
+
+    .auth-buttons {
+        justify-content: center;
+        gap: 7px;
+    }
+
+    .auth-buttons .btn {
+        padding: 8px 10px;
+        font-size: 0.75rem;
+    }
+
+    .nav-links {
+        justify-content: flex-start;
+        gap: 4px;
+    }
+
+    .nav-tab {
+        padding: 8px 11px;
+        font-size: 0.82rem;
+        white-space: nowrap;
+    }
+
+    .container {
+        margin: 25px auto;
+        padding: 0 14px;
+    }
+
+    .hero-content h1 {
+        font-size: 2.55rem;
+    }
+
+    .hero-actions,
+    .tool-controls {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .hero-actions .btn,
+    .tool-controls .btn,
+    .tool-controls .custom-select {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .stats-section,
+    .features-grid,
+    .pricing-grid,
+    .steps-grid,
+    .comparison-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .how-it-works {
+        padding: 22px 16px;
+    }
+
+    .drop-zone {
+        padding: 30px 16px;
+    }
+
+    .tool-card h2 {
+        align-items: flex-start;
+        font-size: 1.35rem;
+    }
+
+    .result-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .result-actions .btn,
+    .result-actions .download-link-btn {
+        justify-content: center;
+    }
+
+    .toast {
+        right: 14px;
+        bottom: 14px;
+        left: 14px;
+        text-align: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}

@@ -45,14 +45,15 @@
             <div class="hero-section">
                 <div class="hero-content">
                     <div class="badge"><i class="fa-solid fa-sparkles"></i> SUITE MULTIMEDIA NEXT-GEN</div>
-                    <h1>Potencia y Precisión en Procesamiento de Media</h1>
+                    <h1>Tus archivos, listos para compartir y usar</h1>
                     <p class="description">
-                        Plataforma web económica y de nivel profesional. Edita, comprime, elimina fondos y limpia audio con máxima velocidad y privacidad absoluta.
+                        Convierte documentos y vuelve a codificar videos desde tu navegador. Comprueba el resultado antes de descargarlo y mantén tus archivos en tu dispositivo durante el procesamiento.
                     </p>
                     <div class="hero-actions">
                         <button class="btn btn-primary btn-glow" onclick="switchView('compressor', event)">Comenzar Ahora <i class="fa-solid fa-arrow-right"></i></button>
                         <button class="btn btn-outline" onclick="switchView('pricing', event)">Ver Planes VIP <i class="fa-solid fa-crown"></i></button>
                     </div>
+                <p class="hero-caption"><i class="fa-solid fa-lock"></i> Tus archivos se procesan localmente. Para el motor de video y las librerías de documentos se requiere internet.</p>
                 </div>
 
                 <div class="hero-card glassmorphism">
@@ -65,20 +66,20 @@
                     <div class="card-body">
                         <div class="status-item">
                             <span>Motor de Renderizado Web</span>
-                            <span class="status active">OPTIMIZADO</span>
+                        <span class="status active">FFmpeg WebAssembly</span>
                         </div>
                         <div class="status-item">
                             <span>Aislamiento DSP y IA</span>
-                            <span class="status active">ACTIVO</span>
+                        <span class="status active">Procesamiento local</span>
                         </div>
                         <div class="status-item">
                             <span>Estado de Cuenta</span>
                             <span class="status active" id="heroPlanBadge">GRATUITO</span>
                         </div>
                         <div class="code-preview">
-                            <code>> CloudEngine.init();</code><br>
-                            <code>> Security & Privacy modules loaded.</code><br>
-                            <code>> Engine status: 100% Ready.</code>
+                    <code>> Video: recodificación H.264 / AAC</code><br>
+                    <code>> Docs: PDF · DOCX · TXT</code><br>
+                    <code>> Tus archivos no se cargan a un servidor.</code>
                         </div>
                     </div>
                 </div>
@@ -88,18 +89,18 @@
             <div class="stats-section">
                 <div class="stat-card glassmorphism">
                     <i class="fa-solid fa-bolt stat-icon"></i>
-                    <h3>Zero Latency</h3>
-                    <p>Procesamiento directamente en tu navegador</p>
+                    <h3>Procesamiento local</h3>
+                    <p>Los archivos se procesan en tu navegador, sin subirlos a un servidor de conversión.</p>
                 </div>
                 <div class="stat-card glassmorphism">
                     <i class="fa-solid fa-user-shield stat-icon"></i>
-                    <h3>Privacidad Total</h3>
-                    <p>Tus archivos nunca se suben a servidores externos</p>
+                    <h3>Resultados comprobables</h3>
+                    <p>Consulta las dimensiones y compara el tamaño antes de guardar el video.</p>
                 </div>
                 <div class="stat-card glassmorphism">
                     <i class="fa-solid fa-sliders stat-icon"></i>
-                    <h3>Filtro DSP Avanzado</h3>
-                    <p>Cancelación inteligente de ruido de fondo</p>
+                    <h3>Formatos claros</h3>
+                    <p>Elige conversiones compatibles y descarga un archivo que sí corresponde a su extensión.</p>
                 </div>
             </div>
 
@@ -127,44 +128,67 @@
                 <div class="feature-card glassmorphism" onclick="switchView('compressor', event)">
                     <div class="feature-icon"><i class="fa-solid fa-file-video"></i></div>
                     <h3>Compresor Real de Video</h3>
-                    <p>Reduce drásticamente los MBs con opciones separadas para previsualizar el resultado y descargarlo.</p>
+                    <p>Vuelve a codificar el video con ajustes de resolución y calidad; revisa cuánto cambió su tamaño.</p>
                     <span class="feature-link">Probar herramienta <i class="fa-solid fa-arrow-right"></i></span>
                 </div>
 
                 <div class="feature-card glassmorphism" onclick="switchView('converter', event)">
                     <div class="feature-icon"><i class="fa-solid fa-file-arrow-up"></i></div>
                     <h3>Conversor de Documentos</h3>
-                    <p>Transforma al instante archivos a PDF (Gratis), TXT, Excel, PowerPoint y más.</p>
+                    <p>Extrae texto de PDF, Word y TXT y conviértelo de verdad a PDF, Word DOCX o texto plano.</p>
                     <span class="feature-link">Probar herramienta <i class="fa-solid fa-arrow-right"></i></span>
                 </div>
             </div>
+
+            <section class="how-it-works glassmorphism">
+                <div class="features-header">
+                    <h2>Rápido de entender, fácil de usar</h2>
+                    <p>Elige una herramienta y revisa el archivo antes de guardarlo.</p>
+                </div>
+                <div class="steps-grid">
+                    <article class="step-card">
+                        <span class="step-number">01</span>
+                        <h3>Selecciona tu archivo</h3>
+                        <p>Haz clic en el área de carga o arrastra un archivo compatible desde tu equipo.</p>
+                    </article>
+                    <article class="step-card">
+                        <span class="step-number">02</span>
+                        <h3>Define el resultado</h3>
+                        <p>Escoge un perfil para el video o el formato de salida para el documento.</p>
+                    </article>
+                    <article class="step-card">
+                        <span class="step-number">03</span>
+                        <h3>Comprueba y descarga</h3>
+                        <p>Revisa el tamaño y la vista previa cuando estén disponibles, y descarga el archivo generado.</p>
+                    </article>
+                </div>
+            </section>
         </section>
 
         <!-- Pestaña 2: Conversor -->
         <section id="converter" class="tab-content">
             <div class="tool-card glassmorphism">
-                <h2><i class="fa-solid fa-file-export"></i> Conversor Universal de Archivos</h2>
-                <p>Cambia la estructura y formato de tus archivos fácilmente. ¡El formato PDF es 100% gratis!</p>
+                <h2><i class="fa-solid fa-file-export"></i> Conversor de documentos</h2>
+                <p>Convierte documentos de texto entre PDF, Word DOCX y TXT. En vez de cambiar solo la extensión, se extrae el texto y se genera un archivo nuevo y válido.</p>
                 
                 <div class="drop-zone" id="converterDropZone">
                     <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-                    <p>Arrastra tu archivo aquí o <span class="highlight-link">explorar equipo</span></p>
-                    <input type="file" id="converterInput" hidden>
+                    <p>Selecciona un archivo PDF, DOCX, TXT, HTML o CSV <span class="highlight-link">explorar equipo</span></p>
+                    <input type="file" id="converterInput" accept=".pdf,.docx,.txt,.text,.html,.htm,.csv,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/html,text/csv" hidden>
+                    <span class="file-selection" id="converterFileInfo">Tus archivos se procesan en este navegador.</span>
                 </div>
 
                 <div class="tool-controls">
                     <label for="targetFormat">Formato Objetivo:</label>
                     <select id="targetFormat" class="custom-select">
-                        <option value="pdf">Documento PDF (.pdf) - Gratis</option>
-                        <option value="txt">Texto Plano (.txt)</option>
-                        <option value="doc">Documento Word (.doc)</option>
-                        <option value="csv">Archivo CSV (.csv)</option>
-                        <option value="xlsx">⭐ Microsoft Excel (.xlsx - Premium)</option>
-                        <option value="pptx">⭐ Microsoft PowerPoint (.pptx - Premium)</option>
-                        <option value="mp4">⭐ MP4 Video (Premium)</option>
+                        <option value="pdf">PDF (.pdf)</option>
+                        <option value="docx">Microsoft Word (.docx)</option>
+                        <option value="txt">Texto plano (.txt)</option>
                     </select>
                     <button class="btn btn-primary" onclick="processConversion()"><i class="fa-solid fa-gear"></i> Convertir y Descargar</button>
                 </div>
+                <p class="tool-note"><i class="fa-solid fa-circle-info"></i> Los documentos escaneados como imagen necesitan OCR, que no está incluido. Al convertir PDF o DOCX, se conserva el texto; el diseño de página complejo puede variar.</p>
+                <div id="converterStatusText" class="status-indicator" aria-live="polite"></div>
                 <div class="progress-bar-container" id="converterProgress">
                     <div class="progress-bar"></div>
                 </div>
@@ -175,22 +199,23 @@
         <!-- Pestaña 3: Compresor -->
         <section id="compressor" class="tab-content">
             <div class="tool-card glassmorphism">
-                <h2><i class="fa-solid fa-file-video"></i> Compresor Real de Video (Con Vista Previa y Descarga)</h2>
-                <p>Optimizado para evitar lag en resoluciones 4K. Utiliza los botones de previsualización o descarga independiente.</p>
+                <h2><i class="fa-solid fa-file-video"></i> Compresor de video</h2>
+                <p>El video se vuelve a codificar con FFmpeg WebAssembly (H.264 y AAC) en tu navegador. La primera vez se descarga el motor de procesamiento (~30 MB); puede tardar y requiere conexión a internet.</p>
                 
                 <div class="drop-zone" id="compressorDropZone">
                     <i class="fa-solid fa-film upload-icon"></i>
-                    <p>Arrastra tu video (MP4, WEBM, MOV) o <span class="highlight-link">haz clic aquí</span></p>
+                    <p>Arrastra un video MP4, MOV o WEBM (hasta 250 MB) o <span class="highlight-link">haz clic aquí</span></p>
                     <input type="file" id="compressorInput" accept="video/*" hidden>
+                    <span class="file-selection" id="compressorMetadata">La compresión usa el procesador y la memoria de tu dispositivo.</span>
                 </div>
 
                 <div class="tool-controls">
                     <label for="compressionLevel">Nivel de Compresión:</label>
                     <select id="compressionLevel" class="custom-select">
-                        <option value="baja">Máxima Reducción (Archivos súper livianos)</option>
-                        <option value="media" selected>Equilibrado (Reducción del 50% - 70%)</option>
-                        <option value="fhd_premium">⭐ Full HD 1080p Real (Premium)</option>
-                        <option value="4k_premium">⭐ 4K Ultra Reducción (Premium)</option>
+                        <option value="baja">Ligero · máximo 720p · menor tamaño</option>
+                        <option value="media" selected>Equilibrado · máximo 1080p</option>
+                        <option value="fhd_premium">⭐ Alta calidad · máximo 1080p (Premium)</option>
+                        <option value="4k_premium">⭐ Alta calidad · máximo 4K (Premium)</option>
                     </select>
                     <button class="btn btn-primary" onclick="processRealVideoCompression()"><i class="fa-solid fa-compress"></i> Procesar Video</button>
                 </div>
@@ -199,7 +224,9 @@
                     <div class="progress-bar"></div>
                 </div>
                 <div id="compressorStatusText" class="status-indicator"></div>
+                <div id="compressorReport" class="file-report" aria-live="polite"></div>
                 <div class="download-area" id="compressorDownloadArea"></div>
+                <p class="tool-note"><i class="fa-solid fa-circle-info"></i> Abre la web por HTTPS o desde un servidor local; abrir el archivo con file:// puede impedir que funcione el motor. La compresión usa la memoria de tu dispositivo (límite: 250 MB). Un video ya optimizado podría no reducirse: la página compara ambos tamaños.</p>
             </div>
         </section>
 
