@@ -386,119 +386,482 @@ function createResultActions(containerId, blob, fileName, isVideo = false) {
     container.append(preview, actions);
 }
 
-/* 1. ELIMINACIÓN DE FONDO REAL */
+/* 1. RECORTE REAL DE PERSONAS CON MEDIAPIPE */
+const selfieSegmentationBase = 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/';
+let selfieSegmentationScriptPromise = null;
+
+function loadSelfieSegmentationLibrary() {
+    if (window.SelfieSegmentation) return Promise.resolve();
+    if (!selfieSegmentationScriptPromise) {
+        selfieSegmentationScriptPromise = new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = `${selfieSegmentationBase}selfie_segmentation.js`;
+            script.crossOrigin = 'anonymous';
+            script.onload = () => window.SelfieSegmentation
+                ? resolve()
+                : reject(new Error('La biblioteca de recorte no se inicializó.'));
+            script.onerror = () => reject(new Error('No se pudo descargar el modelo de recorte. Revisa la conexión e inténtalo de nuevo.'));
+            document.head.appendChild(script);
+        });
+    }
+    return selfieSegmentationScriptPromise;
+}
+
+async function createSelfieSegmenter() {
+    await loadSelfieSegmentationLibrary();
+    const segmenter = new window.SelfieSegmentation({
+        locateFile: file => `${selfieSegmentationBase}${file}`
+    });
+    await segmenter.setOptions({ modelSelection: 1 });
+    return segmenter;
+}
+
+function getPersonMask(segmenter, image) {
+    return new Promise((resolve, reject) => {
+        let settled = false;
+        let resultReceived = false;
+        let sendFinished = false;
+        let result;
+        const timeout = setTimeout(() => fail(new Error('El modelo tardó demasiado en analizar el archivo. Prueba con una imagen o video más pequeño.')), 120000);
+        const fail = error => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timeout);
+            reject(error);
+        };
+        const finish = () => {
+            if (settled || !resultReceived || !sendFinished) return;
+            settled = true;
+            clearTimeout(timeout);
+            resolve(result);
+        };
+        segmenter.onResults(results => {
+            if (!results || !results.segmentationMask || !results.image) {
+                fail(new Error('El modelo no devolvió una máscara válida.'));
+                return;
+            }
+            result = results;
+            resultReceived = true;
+            finish();
+        });
+        Promise.resolve(segmenter.send({ image }))
+            .then(() => {
+                sendFinished = true;
+                finish();
+            })
+            .catch(fail);
+    });
+}
+
+function estimateMaskCoverage(mask) {
+    const sample = document.createElement('canvas');
+    sample.width = 32;
+    sample.height = 32;
+    const context = sample.getContext('2d', { willReadFrequently: true });
+    context.drawImage(mask, 0, 0, sample.width, sample.height);
+    const pixels = context.getImageData(0, 0, sample.width, sample.height).data;
+    let foreground = 0;
+    for (let i = 0; i < pixels.length; i += 4) {
+        if (pixels[i] > 128) foreground++;
+    }
+    return foreground / (sample.width * sample.height);
+}
+
+function drawPersonWithMask(context, results, width, height, backgroundColor, edgeBlur = 0.8) {
+    context.clearRect(0, 0, width, height);
+    context.drawImage(results.image, 0, 0, width, height);
+    context.globalCompositeOperation = 'destination-in';
+    context.filter = `blur(${edgeBlur}px)`;
+    context.drawImage(results.segmentationMask, 0, 0, width, height);
+    context.filter = 'none';
+    context.globalCompositeOperation = 'destination-over';
+    context.fillStyle = backgroundColor;
+    context.fillRect(0, 0, width, height);
+    context.globalCompositeOperation = 'source-over';
+}
+
+function canvasToPng(canvas) {
+    return new Promise((resolve, reject) => {
+        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('No se pudo crear la imagen PNG.')), 'image/png');
+    });
+}
+
+function waitForMediaEvent(media, eventName, errorMessage) {
+    return new Promise((resolve, reject) => {
+        const onReady = () => {
+            cleanup();
+            resolve();
+        };
+        const onError = () => {
+            cleanup();
+            reject(new Error(errorMessage));
+        };
+        const cleanup = () => {
+            media.removeEventListener(eventName, onReady);
+            media.removeEventListener('error', onError);
+        };
+        media.addEventListener(eventName, onReady, { once: true });
+        media.addEventListener('error', onError, { once: true });
+    });
+}
+
+function waitForNextVideoFrame(video) {
+    return new Promise(resolve => {
+        if (video.ended) {
+            resolve();
+            return;
+        }
+        let settled = false;
+        const finish = () => {
+            if (settled) return;
+            settled = true;
+            video.removeEventListener('ended', finish);
+            resolve();
+        };
+        video.addEventListener('ended', finish, { once: true });
+        if (typeof video.requestVideoFrameCallback === 'function') {
+            video.requestVideoFrameCallback(finish);
+        } else {
+            requestAnimationFrame(finish);
+        }
+    });
+}
+
+async function processPersonImage(file, segmenter, mode, progressBar, statusText) {
+    const objectUrl = URL.createObjectURL(file);
+    try {
+        const image = new Image();
+        image.src = objectUrl;
+        await image.decode();
+        const originalWidth = image.naturalWidth;
+        const originalHeight = image.naturalHeight;
+        const maxSide = mode === 'img_4k' ? 4096 : 2048;
+        const maxPixels = mode === 'img_4k' ? 12000000 : 4800000;
+        const scale = Math.min(1, maxSide / Math.max(originalWidth, originalHeight), Math.sqrt(maxPixels / (originalWidth * originalHeight)));
+        const width = Math.max(1, Math.round(originalWidth * scale));
+        const height = Math.max(1, Math.round(originalHeight * scale));
+        const source = document.createElement('canvas');
+        source.width = width;
+        source.height = height;
+        source.getContext('2d').drawImage(image, 0, 0, width, height);
+
+        statusText.textContent = 'Analizando la foto y detectando a la persona…';
+        progressBar.style.width = '35%';
+        const results = await getPersonMask(segmenter, source);
+        if (estimateMaskCoverage(results.segmentationMask) < 0.003) {
+            throw new Error('No se detectó una persona clara. Este modelo está diseñado para personas, no para productos u objetos.');
+        }
+
+        const output = document.createElement('canvas');
+        output.width = width;
+        output.height = height;
+        const edgeBlur = mode === 'normal' ? 0.7 : 1.2;
+        drawPersonWithMask(output.getContext('2d'), results, width, height, 'rgba(0,0,0,0)', edgeBlur);
+        const blob = await canvasToPng(output);
+        progressBar.style.width = '100%';
+        statusText.textContent = `Listo · PNG transparente${scale < 1 ? ` · ${width} × ${height} px` : ''}.`;
+        createResultActions('bgDownloadArea', blob, `${getBaseName(file.name)}_sin_fondo.png`, false);
+    } finally {
+        URL.revokeObjectURL(objectUrl);
+    }
+}
+
+async function processPersonVideo(file, segmenter, backgroundColor, mode, progressBar, statusText) {
+    const objectUrl = URL.createObjectURL(file);
+    const video = document.createElement('video');
+    video.preload = 'auto';
+    video.muted = true;
+    video.src = objectUrl;
+    let sourceStream;
+    let outputStream;
+    let recorder;
+    let recordingPromise;
+
+    try {
+        const metadataReady = waitForMediaEvent(video, 'loadedmetadata', 'No se pudo abrir el video. Prueba con MP4, MOV o WebM.');
+        const firstFrameReady = waitForMediaEvent(video, 'loadeddata', 'El video no contiene un fotograma decodificable.');
+        video.load();
+        await Promise.all([metadataReady, firstFrameReady]);
+        if (!Number.isFinite(video.duration) || video.duration <= 0 || !video.videoWidth || !video.videoHeight) {
+            throw new Error('El video no tiene una duración o dimensiones válidas.');
+        }
+        if (video.duration < 1) {
+            throw new Error('El video debe durar al menos 1 segundo para generar un archivo de salida.');
+        }
+        if (video.duration > 60) {
+            throw new Error('El límite para quitar el fondo a un video es 60 segundos. Recorta el clip y vuelve a intentarlo.');
+        }
+
+        const scale = Math.min(1, 1920 / Math.max(video.videoWidth, video.videoHeight), Math.sqrt(2304000 / (video.videoWidth * video.videoHeight)));
+        const width = Math.max(2, Math.round(video.videoWidth * scale / 2) * 2);
+        const height = Math.max(2, Math.round(video.videoHeight * scale / 2) * 2);
+        if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream) {
+            throw new Error('Este navegador no permite exportar el video procesado. Prueba con Chrome, Edge o Firefox actualizado.');
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext('2d');
+        const frameCanvas = document.createElement('canvas');
+        frameCanvas.width = width;
+        frameCanvas.height = height;
+        const frameContext = frameCanvas.getContext('2d');
+        const canvasStream = canvas.captureStream(24);
+        outputStream = canvasStream;
+        if (typeof video.captureStream === 'function') {
+            sourceStream = video.captureStream();
+        } else if (typeof video.mozCaptureStream === 'function') {
+            sourceStream = video.mozCaptureStream();
+        }
+        const audioTracks = sourceStream ? sourceStream.getAudioTracks() : [];
+        audioTracks.forEach(track => canvasStream.addTrack(track));
+        const mimeTypes = audioTracks.length
+            ? ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm']
+            : ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+        const mimeType = mimeTypes.find(type => MediaRecorder.isTypeSupported(type));
+        if (!mimeType) throw new Error('Este navegador no tiene un formato WebM compatible para exportar el video.');
+
+        recorder = new MediaRecorder(canvasStream, { mimeType });
+        const chunks = [];
+        recordingPromise = new Promise((resolve, reject) => {
+            recorder.ondataavailable = event => {
+                if (event.data && event.data.size) chunks.push(event.data);
+            };
+            recorder.onerror = () => reject(new Error('Falló la grabación del video procesado. Prueba con un clip más corto.'));
+            recorder.onstop = () => resolve(new Blob(chunks, { type: recorder.mimeType || 'video/webm' }));
+        });
+        recordingPromise.catch(() => {});
+
+        recorder.start(1000);
+        statusText.textContent = `Analizando personas${audioTracks.length ? ' y conservando el audio' : ''}…`;
+        await video.play();
+        let frameCount = 0;
+        let coverageTotal = 0;
+        let lastProcessedTime = -1;
+        while (!video.ended) {
+            await waitForNextVideoFrame(video);
+            if (video.ended) break;
+            if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA || video.currentTime <= lastProcessedTime + 0.001) continue;
+            frameContext.clearRect(0, 0, width, height);
+            frameContext.drawImage(video, 0, 0, width, height);
+            const results = await getPersonMask(segmenter, frameCanvas);
+            drawPersonWithMask(context, results, width, height, backgroundColor, mode === 'video_premium' ? 1.6 : 1.1);
+            coverageTotal += estimateMaskCoverage(results.segmentationMask);
+            frameCount++;
+            lastProcessedTime = video.currentTime;
+            const percent = Math.max(4, Math.min(97, Math.round((video.currentTime / video.duration) * 100)));
+            progressBar.style.width = `${percent}%`;
+            statusText.textContent = `Analizando personas · ${percent}% · ${frameCount} ${frameCount === 1 ? 'fotograma' : 'fotogramas'}${scale < 1 ? ' · salida hasta 1080p' : ''}`;
+        }
+        if (frameCount < Math.max(1, Math.ceil(video.duration / 2))) {
+            throw new Error('El equipo no pudo analizar suficientes fotogramas durante la reproducción. Cierra otras pestañas o prueba con un dispositivo más rápido.');
+        }
+        if (coverageTotal / frameCount < 0.003) {
+            throw new Error('No se detectó una persona en el video. Este modelo está diseñado para personas, no para productos u objetos.');
+        }
+        if (recorder.state !== 'inactive') recorder.stop();
+        const blob = await recordingPromise;
+        if (!blob.size) throw new Error('No se generó un video de salida.');
+        return { blob, hasAudio: audioTracks.length > 0 };
+    } finally {
+        if (recorder && recorder.state !== 'inactive') {
+            try { recorder.stop(); } catch (_) {}
+        }
+        if (outputStream) outputStream.getTracks().forEach(track => track.stop());
+        if (sourceStream) sourceStream.getTracks().forEach(track => track.stop());
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+        URL.revokeObjectURL(objectUrl);
+    }
+}
+
 async function processRemoveBackground() {
     if (!checkUserAuth()) return;
-
     const input = document.getElementById('bgInput');
     const mode = document.getElementById('bgQuality').value;
-
     if (mode !== 'normal' && !checkPremiumAuth()) return;
-
     if (!input.files.length) {
         showToast('⚠️ Selecciona una imagen o video.');
         return;
     }
 
     const file = input.files[0];
+    const isVideo = file.type.startsWith('video/') || /\.(mp4|mov|m4v|webm|mkv|avi)$/i.test(file.name);
+    const isImage = file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif|bmp)$/i.test(file.name);
+    if (!isVideo && !isImage) {
+        showToast('⚠️ Elige una imagen o un video compatible.');
+        return;
+    }
+    if (isVideo && file.size > 150 * 1024 * 1024) {
+        showToast('⚠️ El video supera 150 MB; prueba con un archivo más pequeño.');
+        return;
+    }
+
     const progressContainer = document.getElementById('bgProgress');
     const progressBar = progressContainer.querySelector('.progress-bar');
     const statusText = document.getElementById('bgStatusText');
     const downloadArea = document.getElementById('bgDownloadArea');
-
+    const button = document.querySelector('#bg-remover .tool-controls .btn-primary');
+    let segmenter;
     downloadArea.innerHTML = '';
     progressContainer.style.display = 'block';
-    progressBar.style.width = '30%';
-    statusText.textContent = "Procesando píxeles y extrayendo silueta...";
+    progressBar.style.width = '3%';
+    statusText.classList.remove('error-status');
+    statusText.textContent = 'Cargando el modelo de detección de personas…';
+    if (button) button.disabled = true;
 
-    const isVideo = file.type.startsWith('video');
-
-    if (isVideo) {
-        setTimeout(() => {
+    try {
+        segmenter = await createSelfieSegmenter();
+        if (isVideo) {
+            const backgroundColor = document.getElementById('bgVideoColor').value || '#101827';
+            const result = await processPersonVideo(file, segmenter, backgroundColor, mode, progressBar, statusText);
             progressBar.style.width = '100%';
-            statusText.textContent = "¡Fondo de video eliminado con éxito!";
-            setTimeout(() => { progressContainer.style.display = 'none'; }, 500);
-
-            const newName = file.name.substring(0, file.name.lastIndexOf('.')) + '_sin_fondo.webm';
-            createResultActions('bgDownloadArea', file, newName, true);
-            showToast('✅ Fondo de video removido exitosamente.');
-        }, 1200);
-        return;
+            statusText.textContent = `Listo · video WebM con el fondo sustituido por el color elegido${result.hasAudio ? ' y el audio conservado' : ''}.`;
+            createResultActions('bgDownloadArea', result.blob, `${getBaseName(file.name)}_fondo_nuevo.webm`, true);
+        } else {
+            await processPersonImage(file, segmenter, mode, progressBar, statusText);
+        }
+        showToast('✅ Procesamiento terminado. Revisa la vista previa antes de descargar.');
+    } catch (error) {
+        statusText.textContent = `No se pudo procesar: ${error.message || 'error inesperado.'}`;
+        statusText.classList.add('error-status');
+        showToast('❌ No se pudo procesar el archivo.');
+    } finally {
+        if (segmenter && !segmenter.__nubeClosed && typeof segmenter.close === 'function') {
+            try { await segmenter.close(); } catch (_) {}
+        }
+        if (button) button.disabled = false;
+        if (!statusText.classList.contains('error-status')) {
+            setTimeout(() => { progressContainer.style.display = 'none'; }, 900);
+        }
     }
-
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        const img = new Image();
-        img.onload = function() {
-            progressBar.style.width = '70%';
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            canvas.width = img.width;
-            canvas.height = img.height;
-
-            ctx.drawImage(img, 0, 0);
-            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const data = imgData.data;
-
-            for (let i = 0; i < data.length; i += 4) {
-                let r = data[i], g = data[i + 1], b = data[i + 2];
-                if (r > 210 && g > 210 && b > 210) {
-                    data[i + 3] = 0;
-                }
-            }
-            ctx.putImageData(imgData, 0, 0);
-
-            canvas.toBlob((blob) => {
-                progressBar.style.width = '100%';
-                statusText.textContent = "¡Fondo eliminado con éxito!";
-                setTimeout(() => { progressContainer.style.display = 'none'; }, 500);
-
-                const newName = file.name.substring(0, file.name.lastIndexOf('.')) + '_sin_fondo.png';
-                createResultActions('bgDownloadArea', blob, newName, false);
-                showToast('✅ Fondo removido limpiamente.');
-            }, 'image/png');
-        };
-        img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
 }
 
-/* 2. AISLAMIENTO VOCAL Y FILTRO DE RUIDO */
+/* 2. REDUCCIÓN REAL DE RUIDO EN LA PISTA DE AUDIO CON FFMPEG */
 async function processRemoveBackgroundNoise() {
     if (!checkUserAuth()) return;
-
     const input = document.getElementById('vocalInput');
     const noiseIntensity = document.getElementById('noiseLevel').value;
-
     if (noiseIntensity === 'vocal_100' && !checkPremiumAuth()) return;
-
     if (!input.files.length) {
-        showToast('⚠️ Selecciona un archivo de video.');
+        showToast('⚠️ Selecciona un video con audio.');
         return;
     }
 
     const file = input.files[0];
+    const extension = (file.name.split('.').pop() || '').toLowerCase();
+    const supportedExtensions = ['mp4', 'mov', 'm4v', 'webm', 'mkv', 'avi'];
+    if (!file.type.startsWith('video/') && !supportedExtensions.includes(extension)) {
+        showToast('⚠️ Elige un video MP4, MOV, WEBM, MKV o AVI.');
+        return;
+    }
+    if (file.size > 150 * 1024 * 1024) {
+        showToast('⚠️ El video supera 150 MB; prueba con un archivo más pequeño.');
+        return;
+    }
+
     const progressContainer = document.getElementById('vocalProgress');
     const progressBar = progressContainer.querySelector('.progress-bar');
     const statusText = document.getElementById('vocalStatusText');
     const downloadArea = document.getElementById('vocalDownloadArea');
+    const button = document.querySelector('#vocal-remover .tool-controls .btn-primary');
+    const inputName = `noise_input.${supportedExtensions.includes(extension) ? extension : 'mp4'}`;
+    const outputName = 'noise_reduced.mp4';
+    const strengths = {
+        estandar: { nr: 18, floor: -25, label: 'Moderada' },
+        fuerte: { nr: 30, floor: -30, label: 'Fuerte' },
+        vocal_100: { nr: 42, floor: -35, label: 'Muy fuerte' }
+    };
+    const strength = strengths[noiseIntensity] || strengths.estandar;
+    let ffmpeg;
+    let progressHandler;
+    let logHandler;
+    let inputWritten = false;
+    let outputWritten = false;
+    let hasAudioStream = false;
 
     downloadArea.innerHTML = '';
     progressContainer.style.display = 'block';
-    progressBar.style.width = '0%';
-    statusText.textContent = "Aplicando filtros DSP anti-ruido...";
+    progressBar.style.width = '2%';
+    statusText.classList.remove('error-status');
+    statusText.textContent = 'Preparando el motor de audio y video…';
+    if (button) button.disabled = true;
 
-    setTimeout(() => {
+    try {
+        ffmpeg = await loadFFmpeg();
+        statusText.textContent = 'Leyendo y analizando las pistas del video…';
+        const inputData = new Uint8Array(await file.arrayBuffer());
+        await ffmpeg.writeFile(inputName, inputData);
+        inputWritten = true;
+        progressBar.style.width = '8%';
+
+        logHandler = ({ message }) => {
+            if (/\bAudio:/i.test(message || '')) hasAudioStream = true;
+        };
+        ffmpeg.on('log', logHandler);
+        progressHandler = ({ progress, time }) => {
+            if (!Number.isFinite(progress)) return;
+            const percent = Math.max(8, Math.min(95, Math.round(progress * 84) + 8));
+            progressBar.style.width = `${percent}%`;
+            const seconds = Number.isFinite(time) ? ` · ${Math.max(0, time / 1000000).toFixed(1)} s` : '';
+            statusText.textContent = `Reduciendo ruido ${strength.label.toLowerCase()}… ${percent}%${seconds}`;
+        };
+        ffmpeg.on('progress', progressHandler);
+        outputWritten = true;
+        const exitCode = await ffmpeg.exec([
+            '-y', '-i', inputName,
+            '-map', '0:v:0', '-map', '0:a:0',
+            '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2',
+            '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '23',
+            '-pix_fmt', 'yuv420p',
+            '-af', `afftdn=nr=${strength.nr}:nf=${strength.floor}:tn=1`,
+            '-c:a', 'aac', '-b:a', '192k',
+            '-movflags', '+faststart',
+            outputName
+        ]);
+        if (exitCode !== 0) {
+            if (!hasAudioStream) {
+                throw new Error('El video no contiene una pista de audio legible. Selecciona un video con sonido.');
+            }
+            throw new Error('FFmpeg no pudo procesar las pistas de este archivo. Prueba con un video MP4 o MOV más pequeño.');
+        }
+
+        const outputData = await ffmpeg.readFile(outputName);
+        const resultBlob = new Blob([outputData], { type: 'video/mp4' });
+        if (!resultBlob.size) throw new Error('FFmpeg no generó un archivo de salida.');
         progressBar.style.width = '100%';
-        statusText.textContent = "¡Aislamiento completado sin lag!";
-        setTimeout(() => { progressContainer.style.display = 'none'; }, 500);
-
-        const cleanBlob = new Blob([file], { type: 'video/webm' });
-        const newFileName = file.name.substring(0, file.name.lastIndexOf('.')) + '_solo_voces.webm';
-        createResultActions('vocalDownloadArea', cleanBlob, newFileName, true);
-        showToast('✅ Audio limpio generado correctamente.');
-    }, 1000);
+        statusText.textContent = `Listo · filtro ${strength.label.toLowerCase()} aplicado al audio; el video se recodificó como MP4.`;
+        createResultActions('vocalDownloadArea', resultBlob, `${getBaseName(file.name)}_ruido_reducido.mp4`, true);
+        showToast('✅ Se procesó el audio del video.');
+    } catch (error) {
+        const message = error.message || 'error de procesamiento.';
+        const audioHint = /audio|matches no streams|stream map/i.test(message)
+            ? ' Asegúrate de que el video tenga una pista de audio.'
+            : '';
+        statusText.textContent = `No se pudo reducir el ruido: ${message}${audioHint}`;
+        statusText.classList.add('error-status');
+        showToast('❌ No se pudo procesar el video. Revisa la conexión o prueba con un archivo menor.');
+    } finally {
+        if (ffmpeg && progressHandler) {
+            try { ffmpeg.off('progress', progressHandler); } catch (_) {}
+        }
+        if (ffmpeg && logHandler) {
+            try { ffmpeg.off('log', logHandler); } catch (_) {}
+        }
+        if (ffmpeg) {
+            try {
+                if (inputWritten) await ffmpeg.deleteFile(inputName);
+                if (outputWritten) await ffmpeg.deleteFile(outputName);
+            } catch (_) {
+                // La limpieza temporal no afecta al archivo descargable.
+            }
+        }
+        if (button) button.disabled = false;
+        if (progressBar.style.width === '100%') {
+            setTimeout(() => { progressContainer.style.display = 'none'; }, 900);
+        }
+    }
 }
 
 /* Motor FFmpeg WebAssembly: se carga bajo demanda para no ralentizar la página. */

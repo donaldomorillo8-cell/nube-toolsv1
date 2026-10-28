@@ -589,6 +589,16 @@ body {
     outline: none;
 }
 
+.tool-controls input[type="color"] {
+    width: 48px;
+    height: 42px;
+    padding: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    background: #0f172a;
+    cursor: pointer;
+}
+
 .status-indicator {
     margin-top: 15px;
     color: var(--accent-cyan);

@@ -233,8 +233,8 @@
         <!-- Pestaña 4: Quitar Fondo -->
         <section id="bg-remover" class="tab-content">
             <div class="tool-card glassmorphism">
-                <h2><i class="fa-solid fa-image"></i> Eliminador de Fondo Real (Fotos y Videos)</h2>
-                <p>Remueve el fondo de tus imágenes y videos de forma limpia. Visualiza el resultado antes de descargar.</p>
+                <h2><i class="fa-solid fa-image"></i> Recorte de personas y fondo</h2>
+                <p>La IA detecta personas y las separa del fondo. En imágenes exporta PNG transparente; en videos reemplaza el fondo por un color y conserva el audio.</p>
                 
                 <div class="drop-zone" id="bgDropZone">
                     <i class="fa-solid fa-wand-magic upload-icon"></i>
@@ -245,10 +245,12 @@
                 <div class="tool-controls">
                     <label for="bgQuality">Modo de Procesamiento:</label>
                     <select id="bgQuality" class="custom-select">
-                        <option value="normal" selected>Imagen / Video Calidad Estándar (Gratis)</option>
-                        <option value="img_4k">⭐ Imagen Ultra HD 4K (Premium)</option>
-                        <option value="video_premium">⭐ Video sin Fondo Pro (Premium)</option>
+                        <option value="normal" selected>Recorte de personas (Gratis)</option>
+                        <option value="img_4k">⭐ Foto de alta resolución (Premium)</option>
+                        <option value="video_premium">⭐ Video con bordes suavizados (Premium)</option>
                     </select>
+                    <label for="bgVideoColor">Fondo del video:</label>
+                    <input id="bgVideoColor" type="color" value="#101827" aria-label="Color de reemplazo del fondo del video">
                     <button class="btn btn-primary" onclick="processRemoveBackground()"><i class="fa-solid fa-scissors"></i> Remover Fondo</button>
                 </div>
 
@@ -257,27 +259,28 @@
                 </div>
                 <div id="bgStatusText" class="status-indicator"></div>
                 <div class="download-area" id="bgDownloadArea"></div>
+                <p class="tool-note"><i class="fa-solid fa-circle-info"></i> El modelo está optimizado para personas, no para productos u objetos. Se descarga la primera vez y procesa localmente. Las fotos salen como PNG transparente; el video (de 1 a 60 s) se analiza durante la reproducción y se exporta como WebM con el fondo sustituido por el color elegido, hasta 1080p. Usa HTTPS o un servidor local.</p>
             </div>
         </section>
 
         <!-- Pestaña 5: Quitar Ruido -->
         <section id="vocal-remover" class="tab-content">
             <div class="tool-card glassmorphism">
-                <h2><i class="fa-solid fa-wand-magic-sparkles"></i> Limpieza de Ruido de Fondo (Aislamiento Vocal)</h2>
-                <p>Suprime el ruido ambiental, siseos y motores para que se escuche únicamente la voz de las personas.</p>
+                <h2><i class="fa-solid fa-wand-magic-sparkles"></i> Reducción de ruido en video</h2>
+                <p>Analiza la pista de audio y reduce ruido constante y siseo; vuelve a codificar el video para descargarlo.</p>
                 
                 <div class="drop-zone" id="vocalDropZone">
                     <i class="fa-solid fa-sliders upload-icon"></i>
-                    <p>Carga un archivo de video para limpiar el ruido <span class="highlight-link">explorar</span></p>
+                    <p>Carga un video con una pista de audio <span class="highlight-link">explorar</span></p>
                     <input type="file" id="vocalInput" accept="video/*" hidden>
                 </div>
 
                 <div class="tool-controls">
-                    <label for="noiseLevel">Intensidad del Filtro DSP:</label>
+                    <label for="noiseLevel">Intensidad de reducción:</label>
                     <select id="noiseLevel" class="custom-select">
-                        <option value="estandar" selected>Estándar (Siseos y Ruidos Moderados)</option>
-                        <option value="fuerte">Fuerte (Ambientes muy ruidosos / Viento)</option>
-                        <option value="vocal_100">⭐ 100% Cancelación de Fondo - Solo Voces (Premium)</option>
+                        <option value="estandar" selected>Moderada (Gratis)</option>
+                        <option value="fuerte">Fuerte</option>
+                        <option value="vocal_100">⭐ Muy fuerte (Premium)</option>
                     </select>
                     <button class="btn btn-primary" onclick="processRemoveBackgroundNoise()"><i class="fa-solid fa-filter"></i> Eliminar Ruido de Fondo</button>
                 </div>
@@ -287,6 +290,7 @@
                 </div>
                 <div id="vocalStatusText" class="status-indicator"></div>
                 <div class="download-area" id="vocalDownloadArea"></div>
+                <p class="tool-note"><i class="fa-solid fa-circle-info"></i> El procesamiento usa FFmpeg WebAssembly en tu dispositivo y requiere conexión para cargar el motor (~30 MB). Necesita audio en el video; el filtro reduce ruido, pero no separa por completo la voz de otros sonidos. Límite recomendado: 150 MB; abre la página por HTTPS o desde un servidor local.</p>
             </div>
         </section>
 
